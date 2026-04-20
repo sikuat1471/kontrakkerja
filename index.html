@@ -726,13 +726,7 @@ function loadSample(){
   ];
   const samples=[
     {nama:'I Putu Diastudi',nik:'1405010101850001',alamat:'Jl. Pesantren Perum Ikhwan Riau Pratama RT 004 RW 013',noTelepon:'081234567890',tglTandaTangan:'2025-01-05',tglSelesai:'',lampiran:[{jenis:'Sensus Ekonomi 2026',jumlah:21,nilaiPerRD:50000}]},
-    {nama:'Rina Sari Dewi',nik:'1405020304850002',alamat:'Jl. Sukajadi No. 45 RT 002 RW 005',noTelepon:'081298765432',tglTandaTangan:'2025-02-03',tglSelesai:'',lampiran:[{jenis:'Survei Sosial Ekonomi Nasional',jumlah:15,nilaiPerRD:40000}]},
-    {nama:'Ahmad Fauzi',nik:'1405030505850003',alamat:'Jl. HR. Soebrantas Km 10 No. 12',noTelepon:'085312345678',tglTandaTangan:'2025-01-05',tglSelesai:'',lampiran:[{jenis:'Sensus Ekonomi 2026',jumlah:18,nilaiPerRD:50000}]},
-    {nama:'Budi Santoso',nik:'1405040706850004',alamat:'Jl. Diponegoro No. 88 RT 003 RW 009',noTelepon:'082188990011',tglTandaTangan:'2025-02-03',tglSelesai:'',lampiran:[{jenis:'Sensus Ekonomi 2026',jumlah:20,nilaiPerRD:50000}]},
-    {nama:'Citra Dewi Lestari',nik:'1405050907850005',alamat:'Jl. Jendral Sudirman No. 145 RT 001 RW 003',noTelepon:'081377665544',tglTandaTangan:'2025-01-05',tglSelesai:'',lampiran:[{jenis:'Survei Sosial Ekonomi Nasional',jumlah:22,nilaiPerRD:40000}]},
-    {nama:'Dian Permata Sari',nik:'1405061108850006',alamat:'Jl. Imam Munandar No. 23 RT 006 RW 011',noTelepon:'085266778899',tglTandaTangan:'2025-03-04',tglSelesai:'',lampiran:[{jenis:'Sensus Ekonomi 2026',jumlah:15,nilaiPerRD:50000},{jenis:'Survei Sosial Ekonomi Nasional',jumlah:5,nilaiPerRD:40000}]},
-    {nama:'Eko Prasetyo',nik:'1405071309850007',alamat:'Jl. Patin No. 33 RT 001 RW 007',noTelepon:'082344556677',tglTandaTangan:'2025-03-04',tglSelesai:'',lampiran:[{jenis:'Sensus Ekonomi 2026',jumlah:19,nilaiPerRD:50000}]},
-    {nama:'Fitri Rahayu',nik:'1405081510850008',alamat:'Jl. Pesantren Perum Ikhwan Riau Pratama RT 004 RW 013',noTelepon:'081299887766',tglTandaTangan:'2025-01-05',tglSelesai:'',lampiran:[{jenis:'Survei Sosial Ekonomi Nasional',jumlah:18,nilaiPerRD:40000}]}
+    {nama:'Rina Sari Dewi',nik:'1405020304850002',alamat:'Jl. Sukajadi No. 45 RT 002 RW 005',noTelepon:'081298765432',tglTandaTangan:'2025-02-03',tglSelesai:'',lampiran:[{jenis:'Survei Sosial Ekonomi Nasional',jumlah:15,nilaiPerRD:40000}]}
   ];
   const now=new Date().toISOString();
   S.mitra=samples.map((s,i)=>({id:gid(),nomorKontrak:'',nama:s.nama,nik:s.nik,alamat:s.alamat,noTelepon:s.noTelepon,tglTandaTangan:s.tglTandaTangan,tglSelesai:s.tglSelesai,lampiran:s.lampiran,totalHonor:s.lampiran.reduce((t,l)=>t+l.jumlah*l.nilaiPerRD,0),createdAt:new Date(now).getTime()+i,updatedAt:now}));
