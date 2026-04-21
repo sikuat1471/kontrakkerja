@@ -132,7 +132,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#c49a2a!import
 .lamp-input{padding:5px 7px!important;font-size:12px!important;border-radius:6px!important;border-width:1.5px!important}
 .lamp-input-sm{width:60px!important;text-align:center!important}
 .lamp-input-md{width:100px!important;text-align:right!important;font-family:'Courier New',monospace!important;font-size:11.5px!important}
-.lamp-select{padding:5px 24px 5px 7px!important;font-size:12px!important;border-radius:6px!important;border-width:1.5px!important;appearance:none!important;cursor:pointer!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 7px center!important}
 .f-btn{padding:6px 10px;border-radius:7px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all .15s;cursor:pointer;border:none;white-space:nowrap}
 .f-btn-add{background:#f0fdf4;color:#166534;border:1.5px dashed #86efac}
 .f-btn-add:hover{background:#dcfce7;border-color:#22c55e}
@@ -151,6 +150,36 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#c49a2a!import
 .snap-badge i{font-size:8px}
 .dup-warn-bar{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;font-size:10.5px;color:#dc2626;animation:dupPulse 1.5s ease-in-out infinite}
 @keyframes dupPulse{0%,100%{border-color:#fecaca}50%{border-color:#ef4444}}
+
+/* ===== SEARCHABLE SELECT ===== */
+.ss-wrap{position:relative}
+.ss-trigger{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;cursor:pointer;background:#fff;transition:all .15s;min-height:36px;gap:6px;user-select:none}
+.ss-trigger:hover{border-color:#cbd5e1}
+.ss-trigger.open{border-color:#c49a2a;box-shadow:0 0 0 3px rgba(196,154,42,.1)}
+.ss-display{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#0f172a;line-height:1.4}
+.ss-display.ph{color:#cbd5e1;font-style:italic}
+.ss-arrow{flex-shrink:0;color:#94a3b8;font-size:10px;transition:transform .2s}
+.ss-trigger.open .ss-arrow{transform:rotate(180deg)}
+.ss-panel{position:fixed;background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;box-shadow:0 10px 32px rgba(0,0,0,.14),0 2px 8px rgba(0,0,0,.06);z-index:99999;display:none;overflow:hidden;min-width:180px}
+.ss-panel.show{display:block;animation:ssIn .15s ease}
+@keyframes ssIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.ss-search{padding:7px 8px;border-bottom:1px solid #f1f5f9;position:relative}
+.ss-search input{width:100%;padding:5px 8px 5px 26px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;outline:none;transition:border-color .15s;background:#fafbfc}
+.ss-search input:focus{border-color:#c49a2a;background:#fff}
+.ss-search>i{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:10px;pointer-events:none}
+.ss-list{max-height:220px;overflow-y:auto;padding:4px}
+.ss-list::-webkit-scrollbar{width:4px}
+.ss-list::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:2px}
+.ss-opt{padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;transition:background .08s;display:flex;align-items:center;gap:8px;line-height:1.35}
+.ss-opt:hover{background:#f0f4f8}
+.ss-opt.active{background:#0c1424;color:#dab43e;font-weight:600}
+.ss-opt.special{color:#64748b;font-style:italic;border-top:1px solid #f1f5f9;margin-top:3px;padding-top:8px}
+.ss-opt .ss-ol{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ss-opt .ss-oe{font-size:10px;color:#94a3b8;flex-shrink:0;font-family:'Courier New',monospace;letter-spacing:-.02em}
+.ss-opt.active .ss-oe{color:rgba(212,180,62,.55)}
+.ss-nores{padding:14px 16px;text-align:center;color:#94a3b8;font-size:12px}
+.ss-nores i{display:block;font-size:18px;margin-bottom:4px;opacity:.4}
+.ss-kbd{display:inline-block;padding:1px 5px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;font-size:9px;color:#94a3b8;font-family:'Outfit',sans-serif;margin-left:4px;vertical-align:middle}
 </style>
 </head>
 <body class="bg-cool-50 text-navy-900 min-h-screen">
@@ -228,150 +257,73 @@ function lastDay(m,y){return new Date(y,m+1,0).getDate()}
 function pad2(n){return String(n).padStart(2,'0')}
 function fmtD(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())}
 function updBadges(){const b1=$('bdgDb'),b2=$('bdgKeg'),b3=$('bdgKon');if(S.dbMitra.length){b1.textContent=S.dbMitra.length;b1.classList.remove('hidden')}else b1.classList.add('hidden');if(S.jenisKegiatan.length){b2.textContent=S.jenisKegiatan.length;b2.classList.remove('hidden')}else b2.classList.add('hidden');if(S.mitra.length){b3.textContent=S.mitra.length;b3.classList.remove('hidden')}else b3.classList.add('hidden')}
-
 function getMitraTglTandaTangan(m){return m.tglTandaTangan||S.set.tglTandaTangan||''}
-
-/* ===== PERUBAHAN 1: getNextSeq sekarang mencari gap ===== */
-function getNextSeq(tglTT,excludeId){
-  if(!tglTT)return 1;
-  const existing=S.mitra.filter(m=>{
-    if(excludeId&&m.id===excludeId)return false;
-    return getMitraTglTandaTangan(m)===tglTT&&m.nomorKontrak;
-  });
-  const usedSeqs=new Set();
-  existing.forEach(m=>{
-    const parts=m.nomorKontrak.split('/');
-    if(parts.length===4){
-      const seq=parseInt(parts[0].substring(4));
-      if(seq>0)usedSeqs.add(seq);
-    }
-  });
-  let seq=1;
-  while(usedSeqs.has(seq))seq++;
-  return seq;
-}
-
-function getNomorPreview(formTT,excludeId){
-  const tglTT=formTT||S.set.tglTandaTangan||'';
-  if(!tglTT)return{nomor:'-',isDup:false,conflictWith:''};
-  const d=new Date(tglTT),dd=pad2(d.getDate()),mm=pad2(d.getMonth()+1),yyyy=d.getFullYear();
-  const seq=getNextSeq(tglTT,excludeId);
-  const nomor=dd+mm+String(seq).padStart(3,'0')+'/PPK/SPKM/'+yyyy;
-  const conflict=S.mitra.find(m=>m.id!==excludeId&&m.nomorKontrak===nomor);
-  return{nomor,isDup:!!conflict,conflictWith:conflict?conflict.nama:''};
-}
-
-/* ===== PERUBAHAN 2: regenAllNomor hanya mengisi yang KOSONG ===== */
-function regenAllNomor(){
-  const groups={};
-  S.mitra.forEach(m=>{
-    const ttd=getMitraTglTandaTangan(m);
-    if(!ttd)return;
-    const d=new Date(ttd);
-    const key=pad2(d.getDate())+pad2(d.getMonth()+1)+d.getFullYear();
-    if(!groups[key])groups[key]={ddmm:key.substring(0,4),yyyy:key.substring(4),items:[]};
-    groups[key].items.push(m);
-  });
-  Object.values(groups).forEach(g=>{
-    g.items.sort((a,b)=>new Date(a.createdAt||0)-new Date(b.createdAt||0));
-    const usedNums=new Set();
-    g.items.forEach(m=>{
-      if(m.nomorKontrak){
-        const parts=m.nomorKontrak.split('/');
-        if(parts.length===4&&parts[0].startsWith(g.ddmm)){
-          const seq=parseInt(parts[0].substring(4));
-          if(seq>0)usedNums.add(seq);
-        }
-      }
-    });
-    /* Hanya isi nomor untuk yang BELUM punya nomor */
-    g.items.forEach(m=>{
-      if(!m.nomorKontrak||m.nomorKontrak.trim()===''){
-        let seq=1;
-        while(usedNums.has(seq))seq++;
-        m.nomorKontrak=g.ddmm+String(seq).padStart(3,'0')+'/PPK/SPKM/'+g.yyyy;
-        usedNums.add(seq);
-      }
-    });
-  });
-}
-
-/* ===== PERUBAHAN 3: fixDuplicates hanya mengubah yang benar-benar duplikat ===== */
-function fixDuplicates(){
-  const used=new Set();
-  const sorted=[...S.mitra].sort((a,b)=>new Date(a.createdAt||0)-new Date(b.createdAt||0));
-  sorted.forEach(m=>{
-    if(!m.nomorKontrak)return;
-    if(used.has(m.nomorKontrak)){
-      const ttd=getMitraTglTandaTangan(m);
-      if(!ttd)return;
-      const d=new Date(ttd);
-      const ddmm=pad2(d.getDate())+pad2(d.getMonth());
-      const yyyy=d.getFullYear();
-      let seq=1;
-      let newNomor;
-      do{
-        newNomor=ddmm+String(seq).padStart(3,'0')+'/PPK/SPKM/'+yyyy;
-        seq++;
-      }while(used.has(newNomor));
-      m.nomorKontrak=newNomor;
-    }
-    used.add(m.nomorKontrak);
-  });
-}
-
-function findDuplicates(){
-  const map=new Map();
-  const dups=[];
-  S.mitra.forEach(m=>{
-    if(!m.nomorKontrak)return;
-    if(map.has(m.nomorKontrak)){dups.push({nomor:m.nomorKontrak,existing:map.get(m.nomorKontrak),duplicate:m})}
-    else map.set(m.nomorKontrak,m);
-  });
-  return dups;
-}
-
+function getNextSeq(tglTT,excludeId){if(!tglTT)return 1;const existing=S.mitra.filter(m=>{if(excludeId&&m.id===excludeId)return false;return getMitraTglTandaTangan(m)===tglTT&&m.nomorKontrak});const usedSeqs=new Set();existing.forEach(m=>{const parts=m.nomorKontrak.split('/');if(parts.length===4){const seq=parseInt(parts[0].substring(4));if(seq>0)usedSeqs.add(seq)}});let seq=1;while(usedSeqs.has(seq))seq++;return seq}
+function getNomorPreview(formTT,excludeId){const tglTT=formTT||S.set.tglTandaTangan||'';if(!tglTT)return{nomor:'-',isDup:false,conflictWith:''};const d=new Date(tglTT),dd=pad2(d.getDate()),mm=pad2(d.getMonth()+1),yyyy=d.getFullYear();const seq=getNextSeq(tglTT,excludeId);const nomor=dd+mm+String(seq).padStart(3,'0')+'/PPK/SPKM/'+yyyy;const conflict=S.mitra.find(m=>m.id!==excludeId&&m.nomorKontrak===nomor);return{nomor,isDup:!!conflict,conflictWith:conflict?conflict.nama:''}}
+function regenAllNomor(){const groups={};S.mitra.forEach(m=>{const ttd=getMitraTglTandaTangan(m);if(!ttd)return;const d=new Date(ttd);const key=pad2(d.getDate())+pad2(d.getMonth()+1)+d.getFullYear();if(!groups[key])groups[key]={ddmm:key.substring(0,4),yyyy:key.substring(4),items:[]};groups[key].items.push(m)});Object.values(groups).forEach(g=>{g.items.sort((a,b)=>new Date(a.createdAt||0)-new Date(b.createdAt||0));const usedNums=new Set();g.items.forEach(m=>{if(m.nomorKontrak){const parts=m.nomorKontrak.split('/');if(parts.length===4&&parts[0].startsWith(g.ddmm)){const seq=parseInt(parts[0].substring(4));if(seq>0)usedNums.add(seq)}}});g.items.forEach(m=>{if(!m.nomorKontrak||m.nomorKontrak.trim()===''){let seq=1;while(usedNums.has(seq))seq++;m.nomorKontrak=g.ddmm+String(seq).padStart(3,'0')+'/PPK/SPKM/'+g.yyyy;usedNums.add(seq)}})})}
+function fixDuplicates(){const used=new Set();const sorted=[...S.mitra].sort((a,b)=>new Date(a.createdAt||0)-new Date(b.createdAt||0));sorted.forEach(m=>{if(!m.nomorKontrak)return;if(used.has(m.nomorKontrak)){const ttd=getMitraTglTandaTangan(m);if(!ttd)return;const d=new Date(ttd);const ddmm=pad2(d.getDate())+pad2(d.getMonth());const yyyy=d.getFullYear();let seq=1;let newNomor;do{newNomor=ddmm+String(seq).padStart(3,'0')+'/PPK/SPKM/'+yyyy;seq++}while(used.has(newNomor));m.nomorKontrak=newNomor}used.add(m.nomorKontrak)})}
+function findDuplicates(){const map=new Map();const dups=[];S.mitra.forEach(m=>{if(!m.nomorKontrak)return;if(map.has(m.nomorKontrak)){dups.push({nomor:m.nomorKontrak,existing:map.get(m.nomorKontrak),duplicate:m})}else map.set(m.nomorKontrak,m)});return dups}
 function calcSelesaiFromTTD(tglTT){if(!tglTT)return'';const d=new Date(tglTT),m=d.getMonth(),y=d.getFullYear();return y+'-'+pad2(m+1)+'-'+lastDay(m,y)}
 function getAutoDates(){const m=S.set.bulan,y=S.set.tahun,ld=lastDay(m,y);const selesai=y+'-'+pad2(m+1)+'-'+ld;const ed=new Date(selesai),s1=new Date(ed),s2=new Date(ed);s1.setDate(s1.getDate()+5);s2.setDate(s2.getDate()+10);return{selesai,serah:fmtD(s1),serExt:fmtD(s2)}}
 function getMitraTglSelesai(m){return m.tglSelesai||S.set.tglSelesai||getAutoDates().selesai}
 function getMitraBulanTahun(m){const tglTT=getMitraTglTandaTangan(m);if(tglTT){const d=new Date(tglTT);return{bulan:d.getMonth(),tahun:d.getFullYear()}}return{bulan:S.set.bulan,tahun:S.set.tahun}}
 function getMitraDates(m){const tglSelesai=getMitraTglSelesai(m),endD=new Date(tglSelesai),serah=new Date(endD),serahExt=new Date(endD);serah.setDate(serah.getDate()+5);serahExt.setDate(serahExt.getDate()+10);return{selesai:tglSelesai,serah:fmtD(serah),serExt:fmtD(serahExt)}}
-
 function terbilang(n){if(n===0)return'nol';const s=['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan'],b=['','ribu','juta','miliar','triliun'],bl=['sebelas','dua belas','tiga belas','empat belas','lima belas','enam belas','tujuh belas','delapan belas','sembilan belas'];let r='',neg=false;if(n<0){neg=true;n=-n}n=Math.floor(n);let i=0;while(n>0){let c=n%1000;n=Math.floor(n/1000);let cs='',cO=c;if(c>=100){cs+=s[Math.floor(c/100)]+' ratus ';c%=100}if(c>=11&&c<=19)cs+=bl[c-11]+' ';else if(c===10)cs+='sepuluh ';else if(c>=20){cs+=s[Math.floor(c/10)]+' puluh ';c%=10;if(c>0)cs+=s[c]+' '}else if(c>0)cs+=s[c]+' ';if(cO===1&&i===1&&n===0)cs='seribu ';else if(cO>0)cs+=b[i]+' ';r=cs+r;i++}return(neg?'minus ':'')+r.trim()}
-
 function formatNomorBadge(nomor,isDup){if(!nomor)return'-';const parts=nomor.split('/');const cls=isDup?'nomor-kontrak-badge dup':'nomor-kontrak-badge';if(parts.length===4){return'<span class="'+cls+'" title="'+(isDup?'NOMOR DUPLIKAT!':'')+'">'+parts[0]+'<span class="nk-slash">/</span>'+parts[1]+'<span class="nk-slash">/</span>'+parts[2]+'<span class="nk-slash">/</span>'+parts[3]+(isDup?' <i class="fas fa-exclamation-triangle" style="font-size:9px"></i>':'')+'</span>'}return'<span class="'+cls+'">'+nomor+'</span>'}
-
 function toast(msg,type='success'){const ic={success:'fa-check-circle text-green-500',error:'fa-times-circle text-red-500',warning:'fa-exclamation-circle text-amber-500',info:'fa-info-circle text-blue-500'},bg={success:'border-green-200',error:'border-red-200',warning:'border-amber-200',info:'border-blue-200'};const el=document.createElement('div');el.className=`toast-in pointer-events-auto flex items-center gap-3 bg-white border ${bg[type]} rounded-xl shadow-lg px-4 py-3 min-w-[280px] max-w-[400px]`;el.innerHTML=`<i class="fas ${ic[type]}"></i><span class="text-sm text-gray-700 flex-1">${msg}</span>`;$('tC').appendChild(el);setTimeout(()=>{el.classList.replace('toast-in','toast-out');setTimeout(()=>el.remove(),250)},3000)}
 let svT=null;
 function aSave(){clearTimeout(svT);svT=setTimeout(()=>{try{localStorage.setItem('kontrakApp',JSON.stringify({v:S.v,set:S.set,mitra:S.mitra,dbMitra:S.dbMitra,jenisKegiatan:S.jenisKegiatan}));S.lastSaved=new Date();$('svSt').textContent='©Putu_'+S.lastSaved.toLocaleTimeString('id-ID')}catch(e){}},400)}
 function loadS(){try{const d=JSON.parse(localStorage.getItem('kontrakApp'));if(d){if(d.v)S.v=d.v;if(d.set)Object.assign(S.set,d.set);if(d.mitra)S.mitra=d.mitra;if(d.dbMitra)S.dbMitra=d.dbMitra;if(d.jenisKegiatan)S.jenisKegiatan=d.jenisKegiatan;S.dbMitra.forEach(m=>{if(m.aktif===undefined)m.aktif=true});regenAllNomor();if(S.mitra.length||S.dbMitra.length)$('svSt').textContent='Data tersimpan'}}catch(e){}}
-
 function toggleSB(){$('sb').classList.toggle('-translate-x-full');$('sbBg').classList.toggle('hidden')}
 function nav(v){S.v=v;document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.v===v));const titleEl=$('sbTitle');if(titleEl){titleEl.style.opacity='0';titleEl.style.transform='translateY(-4px)';setTimeout(()=>{titleEl.innerHTML='<i class="fas '+(VNAMES_ICONS[v]||'fa-file')+' mr-1.5 text-[11px] opacity-70"></i>'+(VNAMES[v]||'Dashboard');titleEl.style.opacity='1';titleEl.style.transform='translateY(0)'},120)}document.title=(VNAMES[v]||'Dashboard')+' — Mitra Statistik BPS';aSave();render();if(window.innerWidth<1024)toggleSB()}
 function oM(t,h,showPrint,mid){$('mTi').innerHTML=t;$('mIn').innerHTML=h;if(showPrint&&mid){$('mPrintBtn').innerHTML='<button onclick="printK(\''+mid+'\')" class="btn-print px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2"><i class="fas fa-print"></i>Cetak</button>';$('mPrintBtn').classList.remove('hidden')}else{$('mPrintBtn').classList.add('hidden')}$('mOv').classList.remove('hidden');$('mOv').classList.add('flex');document.body.style.overflow='hidden'}
-function cM(){$('mOv').classList.add('hidden');$('mOv').classList.remove('flex');document.body.style.overflow=''}
+function cM(){ssCloseAll();$('mOv').classList.add('hidden');$('mOv').classList.remove('flex');document.body.style.overflow='hidden';document.body.style.overflow=''}
 let cfCb=null;
 function oCf(t,m,cb){$('cfTi').textContent=t;$('cfMs').textContent=m;cfCb=cb;$('cfOv').classList.remove('hidden');$('cfOv').classList.add('flex')}
 function cCf(){$('cfOv').classList.add('hidden');$('cfOv').classList.remove('flex');cfCb=null}
  $('cfBn').addEventListener('click',()=>{if(cfCb)cfCb();cCf()});
 
+/* ===== SEARCHABLE SELECT COMPONENT ===== */
+const _ssCb={};
+function ssHTML(id,opts,selected,placeholder){
+  placeholder=placeholder||'-- Pilih --';
+  const selOpt=opts.find(o=>o.value===selected&&!o.hidden);
+  const dt=selOpt?selOpt.label:placeholder;
+  const isPh=!selOpt;
+  let h='<div class="ss-wrap" id="ss-'+id+'">';
+  h+='<div class="ss-trigger" onclick="ssToggle(\''+id+'\')">';
+  h+='<span class="ss-display'+(isPh?' ph':'')+'">'+esc(dt)+'</span>';
+  h+='<i class="fas fa-chevron-down ss-arrow"></i></div>';
+  h+='<div class="ss-panel" id="ssp-'+id+'"><div class="ss-search"><i class="fas fa-search"></i><input type="text" placeholder="Ketik untuk mencari..." oninput="ssFilter(\''+id+'\',this.value)" onkeydown="ssKeyNav(event,\''+id+'\')"></div>';
+  h+='<div class="ss-list" id="ssl-'+id+'">';
+  opts.forEach(o=>{if(o.hidden)return;const cls=(o.value===selected?' active':'')+(o.special?' special':'');
+  h+='<div class="ss-opt'+cls+'" data-val="'+esc(o.value)+'" onmousedown="ssPick(\''+id+'\',this.dataset.val)">';
+  h+='<span class="ss-ol">'+esc(o.label)+'</span>';
+  if(o.extra)h+='<span class="ss-oe">'+esc(o.extra)+'</span>';
+  h+='</div>'});
+  h+='</div></div></div>';return h}
+function ssInit(id,cb){_ssCb[id]=cb}
+function ssToggle(id){ssCloseAll(id);const panel=$('ssp-'+id);const wrap=$('ss-'+id);if(!panel||!wrap)return;const trigger=wrap.querySelector('.ss-trigger');const isOpen=panel.classList.contains('show');if(isOpen){panel.classList.remove('show');trigger?.classList.remove('open')}else{panel.classList.add('show');trigger?.classList.add('open');ssPosition(id);const inp=panel.querySelector('.ss-search input');if(inp){inp.value='';ssFilter(id,'');setTimeout(()=>inp.focus(),60)}}}
+function ssPosition(id){const trigger=document.querySelector('#ss-'+id+' .ss-trigger');const panel=$('ssp-'+id);if(!trigger||!panel)return;const r=trigger.getBoundingClientRect();const vw=window.innerWidth;let w=r.width;if(w<200)w=200;let left=r.left;if(left+w>vw-8)left=vw-w-8;if(left<8)left=8;panel.style.top=(r.bottom+4)+'px';panel.style.left=left+'px';panel.style.width=w+'px'}
+function ssCloseAll(exceptId){document.querySelectorAll('.ss-panel.show').forEach(p=>{const id=p.id.replace('ssp-','');if(id!==exceptId){p.classList.remove('show');const wrap=$('ss-'+id);wrap?.querySelector('.ss-trigger')?.classList.remove('open')}})}
+function ssFilter(id,q){const list=$('ssl-'+id);if(!list)return;q=q.toLowerCase();const opts=list.querySelectorAll('.ss-opt');let vis=0;opts.forEach(o=>{const label=o.querySelector('.ss-ol')?.textContent?.toLowerCase()||'';const extra=o.querySelector('.ss-oe')?.textContent?.toLowerCase()||'';const match=!q||label.includes(q)||extra.includes(q);o.style.display=match?'':'none';if(match)vis++});let nr=list.querySelector('.ss-nores');if(vis===0){if(!nr){nr=document.createElement('div');nr.className='ss-nores';nr.innerHTML='<i class="fas fa-search"></i>Tidak ditemukan';list.appendChild(nr)}nr.style.display=''}else if(nr){nr.style.display='none'}}
+function ssKeyNav(e,id){if(e.key==='Escape'){ssCloseAll();e.preventDefault()}else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const list=$('ssl-'+id);if(!list)return;const vis=[...list.querySelectorAll('.ss-opt')].filter(o=>o.style.display!=='none');if(!vis.length)return;const cur=list.querySelector('.ss-opt.hover');if(cur)cur.classList.remove('hover');let idx=-1;if(cur){idx=vis.indexOf(cur)}if(e.key==='ArrowDown')idx=Math.min(idx+1,vis.length-1);else idx=Math.max(idx-1,0);vis[idx]?.classList.add('hover');vis[idx]?.scrollIntoView({block:'nearest'})}else if(e.key==='Enter'){e.preventDefault();const list=$('ssl-'+id);const hov=list?.querySelector('.ss-opt.hover');if(hov)ssPick(id,hov.dataset.val)}}
+function ssPick(id,val){const wrap=$('ss-'+id);const panel=$('ssp-'+id);const list=$('ssl-'+id);if(!wrap||!panel||!list)return;list.querySelectorAll('.ss-opt').forEach(o=>{o.classList.toggle('active',o.dataset.val===val);o.classList.remove('hover')});const act=list.querySelector('.ss-opt.active');const disp=wrap.querySelector('.ss-display');if(act&&disp){disp.textContent=act.querySelector('.ss-ol')?.textContent||'';disp.classList.remove('ph')}else if(!val&&disp){disp.textContent=wrap.querySelector('.ss-trigger')?.dataset?.ph||'-- Pilih --';disp.classList.add('ph')}panel.classList.remove('show');wrap.querySelector('.ss-trigger')?.classList.remove('open');if(_ssCb[id])_ssCb[id](val)}
+function ssVal(id){const list=$('ssl-'+id);const act=list?.querySelector('.ss-opt.active');return act?act.dataset.val:''}
+function ssSet(id,val){ssPick(id,val)}
+document.addEventListener('mousedown',e=>{if(!e.target.closest('.ss-wrap'))ssCloseAll()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')ssCloseAll()});
+window.addEventListener('scroll',()=>{document.querySelectorAll('.ss-panel.show').forEach(p=>{const id=p.id.replace('ssp-','');ssPosition(id)})},true);
+window.addEventListener('resize',()=>{document.querySelectorAll('.ss-panel.show').forEach(p=>{const id=p.id.replace('ssp-','');ssPosition(id)})});
+
+/* ===== PAGINATION ===== */
 let dbP=1,dbPS=20,kegP=1,kegPS=20,mP=1,mPS=20;
 function pagHTML(cp,total,ps,pv,uf){const tp=Math.ceil(total/ps);if(total===0)return'';if(tp<=1)return'<div class="px-4 py-2 border-t border-cool-200 text-[11px] text-gray-400">Menampilkan '+total+' data</div>';const s=(cp-1)*ps+1,e=Math.min(cp*ps,total);let h='<div class="px-4 py-2.5 border-t border-cool-200 flex flex-col sm:flex-row items-center justify-between gap-2"><span class="text-[11px] text-gray-400">Menampilkan '+s+'–'+e+' dari '+total+'</span><div class="flex items-center gap-2"><select onchange="'+pv+'PS=Number(this.value);'+pv+'P=1;'+uf+'()" class="px-2 py-1 rounded-md border border-cool-200 text-[11px] bg-white cursor-pointer font-medium">';[20,30,50,100].forEach(v=>{h+='<option value="'+v+'"'+(v===ps?' selected':'')+'>'+v+' / hal</option>'});h+='</select><div class="flex items-center gap-0.5">';h+='<button class="pag-btn bg-cool-100 text-gray-500" onclick="'+pv+'P=1;'+uf+'()" '+(cp<=1?'disabled':'')+'><i class="fas fa-angle-double-left" style="font-size:9px"></i></button>';h+='<button class="pag-btn bg-cool-100 text-gray-500" onclick="'+pv+'P='+(cp-1)+';'+uf+'()" '+(cp<=1?'disabled':'')+'><i class="fas fa-angle-left" style="font-size:9px"></i></button>';let sp=Math.max(1,cp-2),ep=Math.min(tp,sp+4);if(ep-sp<4)sp=Math.max(1,ep-4);if(sp>1)h+='<span class="pag-dots">…</span>';for(let p=sp;p<=ep;p++){h+=p===cp?'<button class="pag-btn active">'+p+'</button>':'<button class="pag-btn bg-cool-100 text-gray-600" onclick="'+pv+'P='+p+';'+uf+'()">'+p+'</button>'}if(ep<tp)h+='<span class="pag-dots">…</span>';h+='<button class="pag-btn bg-cool-100 text-gray-500" onclick="'+pv+'P='+(cp+1)+';'+uf+'()" '+(cp>=tp?'disabled':'')+'><i class="fas fa-angle-right" style="font-size:9px"></i></button>';h+='<button class="pag-btn bg-cool-100 text-gray-500" onclick="'+pv+'P='+tp+';'+uf+'()" '+(cp>=tp?'disabled':'')+'><i class="fas fa-angle-double-right" style="font-size:9px"></i></button>';h+='</div></div></div>';return h}
-
 function bulanBadge(m){const bt=getMitraBulanTahun(m);const isCustom=!!m.tglTandaTangan;const label=BL[bt.bulan]+' '+bt.tahun;return isCustom?'<span class="date-badge custom"><i class="fas fa-user" style="font-size:8px"></i>'+label+'</span>':'<span class="date-badge global"><i class="fas fa-globe" style="font-size:8px"></i>'+label+'</span>'}
 function getMonthDistForYear(year){const dist=[];for(let i=0;i<12;i++)dist.push({bulan:i,tahun:year,count:0,honor:0});S.mitra.forEach(m=>{const bt=getMitraBulanTahun(m);if(bt.tahun===year){dist[bt.bulan].count++;dist[bt.bulan].honor+=(m.totalHonor||0)}});return dist}
 
-function rDash(){
-  const tot=S.mitra.length,leng=S.mitra.filter(m=>m.lampiran&&m.lampiran.length>0&&m.lampiran.some(l=>l.jenis&&l.jumlah>0)).length;
-  const totalHonor=S.mitra.reduce((s,m)=>s+(m.totalHonor||0),0),customTgl=S.mitra.filter(m=>m.tglTandaTangan).length;
-  const dbAktif=S.dbMitra.filter(m=>m.aktif!==false).length,dbNonaktif=S.dbMitra.filter(m=>m.aktif===false).length;
-  const dups=findDuplicates();
-  if(!tot&&!S.set.ppkNama&&!S.dbMitra.length&&!S.jenisKegiatan.length){
-    return'<div class="fade-in"><div class="empty-hero p-8 sm:p-12 lg:p-16 text-center relative"><div class="relative z-10"><div class="hero-logo-ring mx-auto mb-6"><img src="https://z-cdn-media.chatglm.cn/files/b8bffa74-ccd7-43df-ac0a-7d38232e3901.png?auth_key=1872868863-b6cd966dc51a4c34aa738032b487a895-0-e6beed34fb7fb9a9650976366f590c26" alt="Logo BPS"></div><h2 class="text-white text-2xl sm:text-3xl font-bold tracking-wide mb-1">BADAN PUSAT STATISTIK</h2><p class="text-blue-300/70 text-sm sm:text-base font-medium tracking-widest uppercase mb-2">Kota Pekanbaru</p><p class="text-gold-400/60 text-xs italic mb-8">"Melayani dengan Sepenuh Hati"</p><div class="w-16 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mb-8"></div><h3 class="text-white/90 text-lg font-semibold mb-2">Selamat Datang</h3><p class="text-blue-200/50 text-sm mb-8 max-w-md mx-auto">Sistem manajemen kontrak Mitra Statistik BPS Kota Pekanbaru.</p><div class="flex gap-3 justify-center flex-wrap"><button onclick="loadSample()" class="btn-p px-6 py-3 rounded-xl text-sm font-semibold"><i class="fas fa-database mr-2"></i>Muat Data Contoh</button><button onclick="nav(\'settings\')" class="px-6 py-3 rounded-xl text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white/15 transition"><i class="fas fa-cog mr-2"></i>Isi Pengaturan</button></div></div></div></div>'}
-  const distYear=S.set.tahun;const dist=getMonthDistForYear(distYear);const maxC=Math.max(1,...dist.map(d=>d.count));
-  const chartHTML=dist.map(d=>{const pct=Math.round(d.count/maxC*100);const hasData=d.count>0;return'<div class="flex items-center gap-3"><span class="text-[11px] text-gray-500 w-16 text-right font-medium shrink-0">'+BL[d.bulan].substring(0,3)+'</span><div class="flex-1 bg-cool-100 rounded-lg h-7 overflow-hidden relative"><div class="dist-bar '+(hasData?'bg-gradient-to-r from-blue-500 to-blue-400':'bg-cool-200')+'" style="width:'+Math.max(pct,hasData?8:0)+'%">'+(hasData?'<span class="dist-tip">'+d.count+'</span>':'')+'</div></div><span class="text-[11px] font-mono '+(hasData?'text-navy-700 font-bold':'text-gray-300')+' w-6 text-center shrink-0">'+(d.count||'-')+'</span></div>'}).join('');
-  const autoD=getAutoDates();
-  return'<div class="fade-in"><div class="hero-bg rounded-b-3xl px-4 sm:px-8 lg:px-10 pt-8 pb-16 mb-[-48px] relative z-10"><div class="hero-glow"></div><div class="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10"><div class="hero-logo-ring shrink-0"><img src="https://z-cdn-media.chatglm.cn/files/b8bffa74-ccd7-43df-ac0a-7d38232e3901.png?auth_key=1872868863-b6cd966dc51a4c34aa738032b487a895-0-e6beed34fb7fb9a9650976366f590c26" alt="Logo BPS"></div><div class="text-center lg:text-left"><h2 class="text-white text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide leading-tight">BADAN PUSAT STATISTIK</h2><p class="text-blue-300/70 text-sm sm:text-base font-semibold tracking-[0.2em] uppercase mt-0.5">Kota Pekanbaru</p><p class="text-gold-400/50 text-xs italic mt-1.5">"Melayani dengan Sepenuh Hati"</p></div><div class="lg:ml-auto hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5"><div class="pulse-dot" style="background:#3b82f6"></div><span class="text-blue-200/60 text-xs">Sistem Kontrak Mitra Statistik</span></div></div><div class="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-8"><div class="glass p-4"><div class="g-icon bg-blue-500/20 text-blue-300 mb-3"><i class="fas fa-address-book"></i></div><p class="stat-num text-white">'+S.dbMitra.length+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Database Mitra</p><p class="text-emerald-300/60 text-[9px] mt-0.5">'+dbAktif+' aktif · '+dbNonaktif+' nonaktif</p></div><div class="glass p-4"><div class="g-icon bg-emerald-500/20 text-emerald-300 mb-3"><i class="fas fa-clipboard-list"></i></div><p class="stat-num text-white">'+S.jenisKegiatan.length+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Jenis Kegiatan</p></div><div class="glass p-4"><div class="g-icon bg-gold-500/20 text-gold-300 mb-3"><i class="fas fa-file-contract"></i></div><p class="stat-num text-white">'+tot+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Total Kontrak</p></div><div class="glass p-4"><div class="g-icon bg-teal-500/20 text-teal-300 mb-3"><i class="fas fa-clipboard-check"></i></div><p class="stat-num text-white">'+leng+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Lampiran Lengkap</p></div><div class="glass p-4"><div class="g-icon bg-amber-500/20 text-amber-300 mb-3"><i class="fas fa-money-bill-wave"></i></div><p class="stat-num text-white text-base lg:text-lg">'+fRp(totalHonor)+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Total Honor</p></div><div class="glass p-4"><div class="g-icon '+(dups.length?'bg-red-500/20 text-red-300':'bg-violet-500/20 text-violet-300')+' mb-3"><i class="fas '+(dups.length?'fa-exclamation-triangle':'fa-calendar-check')+'"></i></div><p class="stat-num text-white">'+dups.length+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">'+(dups.length?'Duplikat!':'Tgl Custom')+'</p>'+(dups.length?'<p class="text-red-300 text-[9px] mt-0.5">Perlu diperbaiki</p>':'')+'</div></div><div class="hero-wave"><svg viewBox="0 0 1440 36" preserveAspectRatio="none"><path d="M0,18 C240,36 480,0 720,18 C960,36 1200,0 1440,18 L1440,36 L0,36 Z" fill="#f0f4f8"/></svg></div></div><div class="relative z-20 px-0"><div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6"><div class="lg:col-span-3 bg-white rounded-2xl border border-cool-200 shadow-sm"><div class="px-5 py-3 border-b border-cool-200 flex items-center justify-between"><h3 class="font-semibold text-sm flex items-center gap-2"><i class="fas fa-chart-bar text-blue-500 text-xs"></i>Distribusi Kontrak per Bulan</h3><span class="text-xs text-gray-400 font-mono">'+distYear+'</span></div><div class="p-5 space-y-2">'+chartHTML+'</div><div class="px-5 py-2 border-t border-cool-100 flex items-center gap-4 text-[11px] text-gray-400"><span><i class="fas fa-circle text-blue-500 text-[6px] mr-1"></i>Berisi data</span><span><i class="fas fa-circle text-cool-200 text-[6px] mr-1"></i>Kosong</span><span class="ml-auto">Total: <b class="text-navy-700">'+tot+'</b> kontrak</span></div></div><div class="lg:col-span-2 space-y-6"><div class="bg-white rounded-2xl border border-cool-200 shadow-sm"><div class="px-5 py-3 border-b border-cool-200"><h3 class="font-semibold text-sm flex items-center gap-2"><i class="fas fa-user-tie text-gold-600 text-xs"></i>Pejabat Pembuat Komitmen</h3></div><div class="p-5">'+(S.set.ppkNama?'<p class="font-semibold text-sm">'+esc(S.set.ppkNama)+'</p><p class="text-xs text-gray-400 font-mono mt-1">'+esc(S.set.ppkNip||'-')+'</p><p class="text-xs text-gray-500 mt-2">'+esc(S.set.bpsNama)+'</p><p class="text-xs text-gray-400 mt-0.5"><i class="fas fa-map-marker-alt mr-1"></i>'+esc(S.set.bpsAlamat)+'</p>':'<p class="text-sm text-gray-400 italic">Belum dikonfigurasi</p><button onclick="nav(\'settings\')" class="text-gold-600 text-xs font-medium hover:underline mt-2 inline-block"><i class="fas fa-cog mr-1"></i>Buka Pengaturan</button>')+'</div></div><div class="bg-gradient-to-br from-navy-900 to-navy-800 rounded-2xl p-5 text-white relative overflow:hidden"><div class="absolute inset-0" style="background-image:radial-gradient(circle,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:18px 18px"></div><div class="relative z-10"><p class="text-blue-300/60 text-[10px] uppercase tracking-widest font-semibold mb-2">Periode Default</p><p class="text-2xl font-bold">'+BL[S.set.bulan]+' '+S.set.tahun+'</p><div class="mt-3 flex gap-4 text-xs"><div><span class="text-blue-300/40 block">TTD</span><span class="text-blue-200 font-medium">'+fTglShort(S.set.tglTandaTangan||'')+'</span></div><div><span class="text-blue-300/40 block">Selesai</span><span class="text-blue-200 font-medium">'+fTglShort(S.set.tglSelesai||autoD.selesai)+'</span></div></div><div class="mt-3 text-xs"><span class="text-blue-300/40 block">Honor Maks</span><span class="text-gold-400 font-semibold">'+fRp(S.set.honorMaks)+'</span></div></div></div></div></div></div></div>'}
+/* ===== DASHBOARD ===== */
+function rDash(){const tot=S.mitra.length,leng=S.mitra.filter(m=>m.lampiran&&m.lampiran.length>0&&m.lampiran.some(l=>l.jenis&&l.jumlah>0)).length;const totalHonor=S.mitra.reduce((s,m)=>s+(m.totalHonor||0),0),dups=findDuplicates();const dbAktif=S.dbMitra.filter(m=>m.aktif!==false).length,dbNonaktif=S.dbMitra.filter(m=>m.aktif===false).length;if(!tot&&!S.set.ppkNama&&!S.dbMitra.length&&!S.jenisKegiatan.length){return'<div class="fade-in"><div class="empty-hero p-8 sm:p-12 lg:p-16 text-center relative"><div class="relative z-10"><div class="hero-logo-ring mx-auto mb-6"><img src="https://z-cdn-media.chatglm.cn/files/b8bffa74-ccd7-43df-ac0a-7d38232e3901.png?auth_key=1872868863-b6cd966dc51a4c34aa738032b487a895-0-e6beed34fb7fb9a9650976366f590c26" alt="Logo BPS"></div><h2 class="text-white text-2xl sm:text-3xl font-bold tracking-wide mb-1">BADAN PUSAT STATISTIK</h2><p class="text-blue-300/70 text-sm sm:text-base font-medium tracking-widest uppercase mb-2">Kota Pekanbaru</p><p class="text-gold-400/60 text-xs italic mb-8">"Melayani dengan Sepenuh Hati"</p><div class="w-16 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent mx-auto mb-8"></div><h3 class="text-white/90 text-lg font-semibold mb-2">Selamat Datang</h3><p class="text-blue-200/50 text-sm mb-8 max-w-md mx-auto">Sistem manajemen kontrak Mitra Statistik BPS Kota Pekanbaru.</p><div class="flex gap-3 justify-center flex-wrap"><button onclick="loadSample()" class="btn-p px-6 py-3 rounded-xl text-sm font-semibold"><i class="fas fa-database mr-2"></i>Muat Data Contoh</button><button onclick="nav(\'settings\')" class="px-6 py-3 rounded-xl text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white/15 transition"><i class="fas fa-cog mr-2"></i>Isi Pengaturan</button></div></div></div></div>'}const distYear=S.set.tahun;const dist=getMonthDistForYear(distYear);const maxC=Math.max(1,...dist.map(d=>d.count));const chartHTML=dist.map(d=>{const pct=Math.round(d.count/maxC*100);const hasData=d.count>0;return'<div class="flex items-center gap-3"><span class="text-[11px] text-gray-500 w-16 text-right font-medium shrink-0">'+BL[d.bulan].substring(0,3)+'</span><div class="flex-1 bg-cool-100 rounded-lg h-7 overflow-hidden relative"><div class="dist-bar '+(hasData?'bg-gradient-to-r from-blue-500 to-blue-400':'bg-cool-200')+'" style="width:'+Math.max(pct,hasData?8:0)+'%">'+(hasData?'<span class="dist-tip">'+d.count+'</span>':'')+'</div></div><span class="text-[11px] font-mono '+(hasData?'text-navy-700 font-bold':'text-gray-300')+' w-6 text-center shrink-0">'+(d.count||'-')+'</span></div>'}).join('');const autoD=getAutoDates();return'<div class="fade-in"><div class="hero-bg rounded-b-3xl px-4 sm:px-8 lg:px-10 pt-8 pb-16 mb-[-48px] relative z-10"><div class="hero-glow"></div><div class="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10"><div class="hero-logo-ring shrink-0"><img src="https://z-cdn-media.chatglm.cn/files/b8bffa74-ccd7-43df-ac0a-7d38232e3901.png?auth_key=1872868863-b6cd966dc51a4c34aa738032b487a895-0-e6beed34fb7fb9a9650976366f590c26" alt="Logo BPS"></div><div class="text-center lg:text-left"><h2 class="text-white text-xl sm:text-2xl lg:text-3xl font-bold tracking-wide leading-tight">BADAN PUSAT STATISTIK</h2><p class="text-blue-300/70 text-sm sm:text-base font-semibold tracking-[0.2em] uppercase mt-0.5">Kota Pekanbaru</p><p class="text-gold-400/50 text-xs italic mt-1.5">"Melayani dengan Sepenuh Hati"</p></div><div class="lg:ml-auto hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5"><div class="pulse-dot" style="background:#3b82f6"></div><span class="text-blue-200/60 text-xs">Sistem Kontrak Mitra Statistik</span></div></div><div class="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-8"><div class="glass p-4"><div class="g-icon bg-blue-500/20 text-blue-300 mb-3"><i class="fas fa-address-book"></i></div><p class="stat-num text-white">'+S.dbMitra.length+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Database Mitra</p><p class="text-emerald-300/60 text-[9px] mt-0.5">'+dbAktif+' aktif · '+dbNonaktif+' nonaktif</p></div><div class="glass p-4"><div class="g-icon bg-emerald-500/20 text-emerald-300 mb-3"><i class="fas fa-clipboard-list"></i></div><p class="stat-num text-white">'+S.jenisKegiatan.length+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Jenis Kegiatan</p></div><div class="glass p-4"><div class="g-icon bg-gold-500/20 text-gold-300 mb-3"><i class="fas fa-file-contract"></i></div><p class="stat-num text-white">'+tot+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Total Kontrak</p></div><div class="glass p-4"><div class="g-icon bg-teal-500/20 text-teal-300 mb-3"><i class="fas fa-clipboard-check"></i></div><p class="stat-num text-white">'+leng+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Lampiran Lengkap</p></div><div class="glass p-4"><div class="g-icon bg-amber-500/20 text-amber-300 mb-3"><i class="fas fa-money-bill-wave"></i></div><p class="stat-num text-white text-base lg:text-lg">'+fRp(totalHonor)+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">Total Honor</p></div><div class="glass p-4"><div class="g-icon '+(dups.length?'bg-red-500/20 text-red-300':'bg-violet-500/20 text-violet-300')+' mb-3"><i class="fas '+(dups.length?'fa-exclamation-triangle':'fa-calendar-check')+'"></i></div><p class="stat-num text-white">'+dups.length+'</p><p class="text-blue-200/50 text-[10px] mt-1.5 font-medium uppercase tracking-wider">'+(dups.length?'Duplikat!':'OK')+'</p></div></div><div class="hero-wave"><svg viewBox="0 0 1440 36" preserveAspectRatio="none"><path d="M0,18 C240,36 480,0 720,18 C960,36 1200,0 1440,18 L1440,36 L0,36 Z" fill="#f0f4f8"/></svg></div></div><div class="relative z-20 px-0"><div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6"><div class="lg:col-span-3 bg-white rounded-2xl border border-cool-200 shadow-sm"><div class="px-5 py-3 border-b border-cool-200 flex items-center justify-between"><h3 class="font-semibold text-sm flex items-center gap-2"><i class="fas fa-chart-bar text-blue-500 text-xs"></i>Distribusi Kontrak per Bulan</h3><span class="text-xs text-gray-400 font-mono">'+distYear+'</span></div><div class="p-5 space-y-2">'+chartHTML+'</div><div class="px-5 py-2 border-t border-cool-100 flex items-center gap-4 text-[11px] text-gray-400"><span><i class="fas fa-circle text-blue-500 text-[6px] mr-1"></i>Berisi data</span><span><i class="fas fa-circle text-cool-200 text-[6px] mr-1"></i>Kosong</span><span class="ml-auto">Total: <b class="text-navy-700">'+tot+'</b> kontrak</span></div></div><div class="lg:col-span-2 space-y-6"><div class="bg-white rounded-2xl border border-cool-200 shadow-sm"><div class="px-5 py-3 border-b border-cool-200"><h3 class="font-semibold text-sm flex items-center gap-2"><i class="fas fa-user-tie text-gold-600 text-xs"></i>Pejabat Pembuat Komitmen</h3></div><div class="p-5">'+(S.set.ppkNama?'<p class="font-semibold text-sm">'+esc(S.set.ppkNama)+'</p><p class="text-xs text-gray-400 font-mono mt-1">'+esc(S.set.ppkNip||'-')+'</p><p class="text-xs text-gray-500 mt-2">'+esc(S.set.bpsNama)+'</p><p class="text-xs text-gray-400 mt-0.5"><i class="fas fa-map-marker-alt mr-1"></i>'+esc(S.set.bpsAlamat)+'</p>':'<p class="text-sm text-gray-400 italic">Belum dikonfigurasi</p><button onclick="nav(\'settings\')" class="text-gold-600 text-xs font-medium hover:underline mt-2 inline-block"><i class="fas fa-cog mr-1"></i>Buka Pengaturan</button>')+'</div></div><div class="bg-gradient-to-br from-navy-900 to-navy-800 rounded-2xl p-5 text-white relative overflow:hidden"><div class="absolute inset-0" style="background-image:radial-gradient(circle,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:18px 18px"></div><div class="relative z-10"><p class="text-blue-300/60 text-[10px] uppercase tracking-widest font-semibold mb-2">Periode Default</p><p class="text-2xl font-bold">'+BL[S.set.bulan]+' '+S.set.tahun+'</p><div class="mt-3 flex gap-4 text-xs"><div><span class="text-blue-300/40 block">TTD</span><span class="text-blue-200 font-medium">'+fTglShort(S.set.tglTandaTangan||'')+'</span></div><div><span class="text-blue-300/40 block">Selesai</span><span class="text-blue-200 font-medium">'+fTglShort(S.set.tglSelesai||autoD.selesai)+'</span></div></div><div class="mt-3 text-xs"><span class="text-blue-300/40 block">Honor Maks</span><span class="text-gold-400 font-semibold">'+fRp(S.set.honorMaks)+'</span></div></div></div></div></div></div></div>'}
 
 /* ===== DATABASE MITRA ===== */
 let dbSearch='',dbStatus='all';
@@ -395,21 +347,16 @@ function delKeg(id){const k=S.jenisKegiatan.find(x=>x.id===id);if(!k)return;oCf(
 let mSearch='',mFilter='all',mFilterBulan=-1,mFilterTahun=0;
 function getAvailableYears(){const ys=new Set();ys.add(S.set.tahun);ys.add(new Date().getFullYear());S.mitra.forEach(m=>{const bt=getMitraBulanTahun(m);ys.add(bt.tahun)});return[...ys].sort((a,b)=>b-a)}
 
-function rMitra(){
-  const dups=findDuplicates();const dupSet=new Set(dups.map(d=>d.nomor));
-  const availYears=getAvailableYears();
-  let yearOpts='<option value="0"'+(mFilterTahun===0?' selected':'')+'>Semua Tahun</option>';availYears.forEach(y=>{yearOpts+='<option value="'+y+'"'+(mFilterTahun===y?' selected':'')+'>'+y+'</option>'});
-  let monthOpts='<option value="-1"'+(mFilterBulan===-1?' selected':'')+'>Semua Bulan</option>';BL.forEach((b,i)=>{monthOpts+='<option value="'+i+'"'+(mFilterBulan===i?' selected':'')+'>'+b+'</option>'});
-  const hasActiveBT=mFilterBulan>=0||mFilterTahun>0;
-  return'<div class="fade-in"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"><div><h2 class="text-2xl font-bold">Mitra Statistik</h2><p class="text-gray-500 text-sm mt-1">'+S.mitra.length+' kontrak'+(dups.length?' · <span class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-1"></i>'+dups.length+' duplikat</span>':'')+'</p></div><div class="flex gap-2 flex-wrap"><button onclick="addSingle()" class="btn-p px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap"><i class="fas fa-plus mr-2"></i>Tambah Kontrak</button>'+(S.mitra.length?'<button onclick="printAll()" class="btn-print px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap"><i class="fas fa-print mr-2"></i>Cetak Semua</button>':'')+'</div></div>'+(dups.length?'<div class="dup-warn-bar mb-4"><i class="fas fa-exclamation-triangle"></i><div><strong>'+dups.length+' nomor duplikat terdeteksi:</strong> '+dups.map(d=>'<span class="font-mono font-bold">'+d.nomor+'</span> ('+esc(d.duplicate.nama)+')').join(', ')+' — <button onclick="fixDuplicates();aSave();render();toast(\'Duplikat diperbaiki\')" class="underline font-semibold hover:no-underline">Perbaiki Otomatis</button></div></div>':'')+'<div class="bg-white rounded-2xl border border-cool-200 shadow-sm"><div class="px-4 py-2 border-b border-cool-200 space-y-2"><div class="flex flex-col sm:flex-row gap-2"><div class="relative flex-1"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i><input id="mitraSearchInp" type="text" placeholder="Cari nama, NIK, nomor kontrak..." value="'+esc(mSearch)+'" oninput="mSearch=this.value;mP=1;updMitraList()" class="w-full pl-8 pr-3 py-2 rounded-lg border border-cool-200 text-sm"></div><div class="flex gap-2 flex-shrink-0"><div class="relative"><select id="mFilterBulanSel" onchange="mFilterBulan=Number(this.value);mP=1;updMitraList()" class="pl-3 pr-7 py-2 rounded-lg border '+(mFilterBulan>=0?'flt-active':'border-cool-200')+' text-sm appearance-none cursor-pointer bg-white" style="min-width:130px">'+monthOpts+'</select><i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i></div><div class="relative"><select id="mFilterTahunSel" onchange="mFilterTahun=Number(this.value);mP=1;updMitraList()" class="pl-3 pr-7 py-2 rounded-lg border '+(mFilterTahun>0?'flt-active':'border-cool-200')+' text-sm appearance-none cursor-pointer bg-white" style="min-width:110px">'+yearOpts+'</select><i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i></div>'+(hasActiveBT?'<button id="mFilterResetBtn" onclick="mFilterBulan=-1;mFilterTahun=0;mP=1;updMitraList()" class="px-2.5 py-2 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition flex items-center gap-1 whitespace-nowrap"><i class="fas fa-times"></i>Reset</button>':'')+'</div></div><div class="flex gap-1.5 flex-wrap items-center"><span class="text-[10px] text-gray-400 font-medium uppercase tracking-wider mr-0.5">Status:</span>'+['all','lengkap','belum','custom'].map(f=>{const lb={all:'Semua',lengkap:'Lengkap',belum:'Belum',custom:'Tgl Custom'};return'<button data-mfilter="'+f+'" onclick="mFilter=\''+f+'\';mP=1;updMitraList()" class="px-2.5 py-1.5 rounded-md text-xs font-medium transition '+(mFilter===f?'bg-navy-900 text-white':'bg-cool-100 text-gray-600 hover:bg-cool-200')+'">'+lb[f]+'</button>'}).join('')+'</div></div><div id="mitraListWrap"></div></div></div>'}
+function rMitra(){const dups=findDuplicates();const dupSet=new Set(dups.map(d=>d.nomor));const availYears=getAvailableYears();let yearOpts='<option value="0"'+(mFilterTahun===0?' selected':'')+'>Semua Tahun</option>';availYears.forEach(y=>{yearOpts+='<option value="'+y+'"'+(mFilterTahun===y?' selected':'')+'>'+y+'</option>'});let monthOpts='<option value="-1"'+(mFilterBulan===-1?' selected':'')+'>Semua Bulan</option>';BL.forEach((b,i)=>{monthOpts+='<option value="'+i+'"'+(mFilterBulan===i?' selected':'')+'>'+b+'</option>'});const hasActiveBT=mFilterBulan>=0||mFilterTahun>0;return'<div class="fade-in"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5"><div><h2 class="text-2xl font-bold">Mitra Statistik</h2><p class="text-gray-500 text-sm mt-1">'+S.mitra.length+' kontrak'+(dups.length?' · <span class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-1"></i>'+dups.length+' duplikat</span>':'')+'</p></div><div class="flex gap-2 flex-wrap"><button onclick="addSingle()" class="btn-p px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap"><i class="fas fa-plus mr-2"></i>Tambah Kontrak</button>'+(S.mitra.length?'<button onclick="printAll()" class="btn-print px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap"><i class="fas fa-print mr-2"></i>Cetak Semua</button>':'')+'</div></div>'+(dups.length?'<div class="dup-warn-bar mb-4"><i class="fas fa-exclamation-triangle"></i><div><strong>'+dups.length+' nomor duplikat terdeteksi:</strong> '+dups.map(d=>'<span class="font-mono font-bold">'+d.nomor+'</span> ('+esc(d.duplicate.nama)+')').join(', ')+' — <button onclick="fixDuplicates();aSave();render();toast(\'Duplikat diperbaiki\')" class="underline font-semibold hover:no-underline">Perbaiki Otomatis</button></div></div>':'')+'<div class="bg-white rounded-2xl border border-cool-200 shadow-sm"><div class="px-4 py-2 border-b border-cool-200 space-y-2"><div class="flex flex-col sm:flex-row gap-2"><div class="relative flex-1"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i><input id="mitraSearchInp" type="text" placeholder="Cari nama, NIK, nomor kontrak..." value="'+esc(mSearch)+'" oninput="mSearch=this.value;mP=1;updMitraList()" class="w-full pl-8 pr-3 py-2 rounded-lg border border-cool-200 text-sm"></div><div class="flex gap-2 flex-shrink-0"><div class="relative"><select id="mFilterBulanSel" onchange="mFilterBulan=Number(this.value);mP=1;updMitraList()" class="pl-3 pr-7 py-2 rounded-lg border '+(mFilterBulan>=0?'flt-active':'border-cool-200')+' text-sm appearance-none cursor-pointer bg-white" style="min-width:130px">'+monthOpts+'</select><i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i></div><div class="relative"><select id="mFilterTahunSel" onchange="mFilterTahun=Number(this.value);mP=1;updMitraList()" class="pl-3 pr-7 py-2 rounded-lg border '+(mFilterTahun>0?'flt-active':'border-cool-200')+' text-sm appearance-none cursor-pointer bg-white" style="min-width:110px">'+yearOpts+'</select><i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 pointer-events-none"></i></div>'+(hasActiveBT?'<button id="mFilterResetBtn" onclick="mFilterBulan=-1;mFilterTahun=0;mP=1;updMitraList()" class="px-2.5 py-2 rounded-lg text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition flex items-center gap-1 whitespace-nowrap"><i class="fas fa-times"></i>Reset</button>':'')+'</div></div><div class="flex gap-1.5 flex-wrap items-center"><span class="text-[10px] text-gray-400 font-medium uppercase tracking-wider mr-0.5">Status:</span>'+['all','lengkap','belum','custom'].map(f=>{const lb={all:'Semua',lengkap:'Lengkap',belum:'Belum',custom:'Tgl Custom'};return'<button data-mfilter="'+f+'" onclick="mFilter=\''+f+'\';mP=1;updMitraList()" class="px-2.5 py-1.5 rounded-md text-xs font-medium transition '+(mFilter===f?'bg-navy-900 text-white':'bg-cool-100 text-gray-600 hover:bg-cool-200')+'">'+lb[f]+'</button>'}).join('')+'</div></div><div id="mitraListWrap"></div></div></div>'}
 
 function updMitraFilters(){document.querySelectorAll('[data-mfilter]').forEach(btn=>{const f=btn.dataset.mfilter;btn.className='px-2.5 py-1.5 rounded-md text-xs font-medium transition '+(mFilter===f?'bg-navy-900 text-white':'bg-cool-100 text-gray-600 hover:bg-cool-200')});const ms=$('mFilterBulanSel');if(ms){ms.className='pl-3 pr-7 py-2 rounded-lg border '+(mFilterBulan>=0?'flt-active':'border-cool-200')+' text-sm appearance-none cursor-pointer bg-white';ms.value=mFilterBulan}const ys=$('mFilterTahunSel');if(ys){ys.className='pl-3 pr-7 py-2 rounded-lg border '+(mFilterTahun>0?'flt-active':'border-cool-200')+' text-sm appearance-none cursor-pointer bg-white';ys.value=mFilterTahun}const rb=$('mFilterResetBtn');if(rb)rb.style.display=(mFilterBulan>=0||mFilterTahun>0)?'':'none'}
 function updMitraList(){const el=$('mitraListWrap');if(!el)return;const dupSet=new Set(findDuplicates().map(d=>d.nomor));let list=[...S.mitra];if(mFilterBulan>=0)list=list.filter(m=>getMitraBulanTahun(m).bulan===mFilterBulan);if(mFilterTahun>0)list=list.filter(m=>getMitraBulanTahun(m).tahun===mFilterTahun);if(mFilter==='lengkap')list=list.filter(m=>m.lampiran&&m.lampiran.length>0&&m.lampiran.some(l=>l.jenis&&l.jumlah>0));if(mFilter==='belum')list=list.filter(m=>!m.lampiran||!m.lampiran.length||!m.lampiran.some(l=>l.jenis&&l.jumlah>0));if(mFilter==='custom')list=list.filter(m=>m.tglTandaTangan);if(mSearch){const q=mSearch.toLowerCase();list=list.filter(m=>m.nama.toLowerCase().includes(q)||m.nik.includes(q)||m.nomorKontrak.toLowerCase().includes(q))}list.sort((a,b)=>(b.nomorKontrak||'').localeCompare(a.nomorKontrak||''));const totalFiltered=list.length;if(!totalFiltered){el.innerHTML='<div class="px-6 py-16 text-center text-gray-400"><i class="fas fa-inbox text-3xl mb-3 block"></i>'+(mSearch||mFilter!=='all'||(mFilterBulan>=0||mFilterTahun>0)?'Tidak ada mitra yang cocok dengan filter':'Belum ada kontrak.')+'</div>';return}const start=(mP-1)*mPS,end=Math.min(mP*mPS,totalFiltered),pageItems=list.slice(start,end);el.innerHTML='<div class="tbl-scroll"><table class="w-full ctbl"><thead><tr class="text-center"><th class="w-7">No</th><th style="width:190px">Nomor Kontrak</th><th>Nama</th><th class="text-center">Bulan</th><th class="text-center">Tgl TTD</th><th class="text-center hidden lg:table-cell">Tgl Selesai</th><th class="text-center">Status</th><th class="text-center">Honor<br><span class="text-[9px] font-normal block mt-0.5">(Rp.)</span></th><th class="text-center w-28">Aksi</th></tr></thead><tbody>'+pageItems.map((m,i)=>{const hasLamp=m.lampiran&&m.lampiran.length>0&&m.lampiran.some(l=>l.jenis&&l.jumlah>0);const isDup=dupSet.has(m.nomorKontrak);return'<tr class="tbl-row border-b border-cool-100 last:border-0 '+(isDup?'bg-red-50/50':'')+'"><td class="text-[11px]">'+(start+i+1)+'</td><td>'+formatNomorBadge(m.nomorKontrak,isDup)+'</td><td class="font-medium">'+esc(m.nama)+(isDup?' <i class="fas fa-exclamation-triangle text-red-500" style="font-size:9px" title="Duplikat!"></i>':'')+'</td><td class="text-center">'+bulanBadge(m)+'</td><td class="text-center">'+(m.tglTandaTangan?'<span class="date-badge custom"><i class="fas fa-lock" style="font-size:7px"></i>'+fTglShort(m.tglTandaTangan)+'</span>':'<span class="date-badge global"><i class="fas fa-globe" style="font-size:8px"></i>'+fTglShort(S.set.tglTandaTangan||'')+'</span>')+'</td><td class="text-center hidden lg:table-cell">'+(m.tglSelesai?'<span class="date-badge custom"><i class="fas fa-lock" style="font-size:7px"></i>'+fTglShort(m.tglSelesai)+'</span>':'<span class="date-badge global"><i class="fas fa-globe" style="font-size:8px"></i>'+fTglShort(S.set.tglSelesai||getAutoDates().selesai)+'</span>')+'</td><td class="text-center">'+(hasLamp?'<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-green-50 text-green-700">Lengkap</span>':'<span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700">Belum</span>')+'</td><td class="font-mono text-[11px] text-right">'+Number(m.totalHonor||0).toLocaleString('id-ID')+'</td><td class="text-right whitespace-nowrap"><button onclick="viewM(\''+m.id+'\')" class="text-blue-500 hover:text-blue-600 text-xs font-medium mr-1" title="Lihat"><i class="fas fa-eye"></i></button><button onclick="editM(\''+m.id+'\')" class="text-amber-400 hover:text-amber-500 text-xs font-medium mr-1" title="Edit"><i class="fas fa-pen"></i></button><button onclick="printK(\''+m.id+'\')" class="text-blue-500 hover:text-blue-600 text-xs font-medium mr-1" title="Cetak"><i class="fas fa-print"></i></button><button onclick="delM(\''+m.id+'\')" class="text-red-400 hover:text-red-500 text-xs font-medium" title="Hapus"><i class="fas fa-trash"></i></button></td></tr>'}).join('')+'</tbody></table></div>'+pagHTML(mP,totalFiltered,mPS,'m','updMitraList');updMitraFilters()}
 
 function viewM(id){const m=S.mitra.find(x=>x.id===id);if(!m)return;const lamp=m.lampiran||[];const hasLamp=lamp.some(l=>l.jenis&&l.jumlah>0);const md=getMitraDates(m);const isDup=findDuplicates().some(d=>d.nomor===m.nomorKontrak);let lampTbl='';if(hasLamp){lampTbl='<table class="w-full text-sm border border-cool-200 rounded-lg overflow-hidden"><thead><tr class="text-left text-gray-600 text-xs" style="background:linear-gradient(135deg,#0c1a30,#1a3360);color:rgba(255,255,255,0.9)"><th class="px-3 py-2">No</th><th class="px-3 py-2">Jenis Pendataan</th><th class="px-3 py-2 text-center">Jumlah</th><th class="px-3 py-2 text-right">Nilai</th><th class="px-3 py-2 text-right">Total</th></tr></thead><tbody>'+lamp.filter(l=>l.jenis).map((l,i)=>'<tr class="border-t border-cool-100"><td class="px-3 py-2 text-xs">'+(i+1)+'</td><td class="px-3 py-2">'+esc(l.jenis)+'</td><td class="px-3 py-2 text-center font-mono">'+l.jumlah+'</td><td class="px-3 py-2 text-right font-mono">'+Number(l.nilaiPerRD).toLocaleString('id-ID')+'</td><td class="px-3 py-2 text-right font-mono font-semibold">'+Number(l.jumlah*l.nilaiPerRD).toLocaleString('id-ID')+'</td></tr>').join('')+'<tr class="border-t-2 border-cool-300 bg-cool-50 font-bold text-xs"><td colspan="4" class="px-3 py-2 text-right">TOTAL HONORARIUM</td><td class="px-3 py-2 text-right font-mono">'+fRp(m.totalHonor||0)+'</td></tr></tbody></table>'}else{lampTbl='<p class="text-sm text-gray-400 italic">Lampiran rincian honorarium belum diisi</p>'}oM('Detail Mitra: '+m.nama,'<div class="space-y-5"><div class="nomor-auto"><div><div class="label">Nomor Kontrak</div><div>'+esc(m.nomorKontrak)+'</div></div><i class="fas fa-check-circle"></i></div>'+(isDup?'<div class="dup-warn-bar"><i class="fas fa-exclamation-triangle"></i><span><b>Duplikat terdeteksi!</b> Nomor ini sama dengan kontrak lain.</span></div>':'')+'<div class="bg-cool-50 rounded-xl p-5 space-y-3"><h4 class="font-semibold text-sm text-gold-700 flex items-center gap-2"><i class="fas fa-user"></i> Data Pribadi</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"><div><span class="text-gray-400 text-xs block">NIK</span><span class="font-mono text-xs">'+esc(m.nik)+'</span></div><div><span class="text-gray-400 text-xs block">No. Telepon</span><span class="text-xs">'+esc(m.noTelepon||'-')+'</span></div><div class="md:col-span-2"><span class="text-gray-400 text-xs block">Alamat</span><span class="text-xs">'+esc(m.alamat)+'</span></div></div></div><div class="bg-blue-50 rounded-xl p-5 space-y-3"><h4 class="font-semibold text-sm text-blue-700 flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Tanggal Kontrak</h4><div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm"><div><span class="text-gray-400 text-xs block">Bulan</span>'+bulanBadge(m)+'</div><div><span class="text-gray-400 text-xs block">Tgl TTD</span>'+(m.tglTandaTangan?'<span class="date-badge custom"><i class="fas fa-lock" style="font-size:7px"></i>'+fTglShort(m.tglTandaTangan)+'</span>':'<span class="date-badge global">'+fTglShort(S.set.tglTandaTangan||'-')+'</span>')+'</div><div><span class="text-gray-400 text-xs block">Selesai</span>'+(m.tglSelesai?'<span class="date-badge custom"><i class="fas fa-lock" style="font-size:7px"></i>'+fTglShort(m.tglSelesai)+'</span>':'<span class="date-badge global">'+fTglShort(S.set.tglSelesai||getAutoDates().selesai)+'</span>')+'</div><div><span class="text-gray-400 text-xs block">Serah</span><span class="date-badge global"><i class="fas fa-calculator" style="font-size:8px"></i>'+fTglShort(md.serah)+'</span></div></div></div><div class="bg-cool-50 rounded-xl p-5 space-y-3"><h4 class="font-semibold text-sm text-gold-700 flex items-center gap-2"><i class="fas fa-table"></i> Lampiran</h4>'+lampTbl+'</div><div class="flex gap-3 justify-between pt-3 border-t border-cool-200"><button onclick="editM(\''+m.id+'\')" class="btn-g px-5 py-2.5 rounded-xl text-sm font-medium"><i class="fas fa-pen mr-2"></i>Edit</button><button onclick="printK(\''+m.id+'\')" class="btn-print px-8 py-2.5 rounded-xl text-sm font-semibold"><i class="fas fa-print mr-2"></i>Cetak</button></div></div>',true,id)}
 
-let _editId='';
-function addSingle(){if(!S.set.ppkNama)return toast('Isi pengaturan PPK/BPS terlebih dahulu','warning');_editId='';oM('<i class="fas fa-plus-circle text-gold-500 mr-2"></i>Tambah Kontrak Mitra',mitraFormHTML({id:'',nama:'',nik:'',alamat:'',noTelepon:'',tglTandaTangan:'',tglSelesai:'',lampiran:[{jenis:'',jumlah:0,nilaiPerRD:0}],totalHonor:0},false));setTimeout(()=>{updTglPreview();updLampTotal()},60)}
+/* ===== FORM KONTRAK ===== */
+let _editId='',_lampIdx=0;
+function addSingle(){if(!S.set.ppkNama)return toast('Isi pengaturan PPK/BPS terlebih dahulu','warning');_editId='';_lampIdx=0;oM('<i class="fas fa-plus-circle text-gold-500 mr-2"></i>Tambah Kontrak Mitra',mitraFormHTML({id:'',nama:'',nik:'',alamat:'',noTelepon:'',tglTandaTangan:'',tglSelesai:'',lampiran:[{jenis:'',jumlah:0,nilaiPerRD:0}],totalHonor:0},false),false,'');setTimeout(()=>{ssInit('ss-mitra-nm',handleNamaSelect);document.querySelectorAll('[data-lidx]').forEach(row=>{const idx=row.dataset.lidx;ssInit('ss-lj-'+idx,val=>handleJenisSelect(idx,val))});updTglPreview();updLampTotal()},60)}
 function findDbMitraByNama(nama){if(!nama)return null;return S.dbMitra.find(d=>d.nama.toLowerCase()===nama.toLowerCase()&&d.aktif!==false)||null}
 function findKegiatanByNama(nama){if(!nama)return null;return S.jenisKegiatan.find(k=>k.nama.toLowerCase()===nama.toLowerCase())||null}
 
@@ -417,64 +364,77 @@ function mitraFormHTML(m,isEdit){
   const lamp=m.lampiran||[];const curTT=m.tglTandaTangan||'';
   const dbMatch=findDbMitraByNama(m.nama);
   const aktifDbMitra=[...S.dbMitra.filter(d=>d.aktif!==false)].sort((a,b)=>(a.nama||'').localeCompare(b.nama||''));
-  let namaOpts='',namaShowManual=false,namaManualVal='';
-  if(aktifDbMitra.length){namaOpts+='<option value="">-- Pilih dari Database --</option>';aktifDbMitra.forEach(d=>{const sel=(dbMatch&&d.id===dbMatch.id)?' selected':'';namaOpts+='<option value="'+d.id+'"'+sel+'>'+esc(d.nama)+' — '+esc(d.nik)+'</option>'});const manualSel=(!dbMatch&&m.nama)?' selected':'';namaOpts+='<option value="__manual__"'+manualSel+'>✏️ Input Manual</option>';if(!dbMatch&&m.nama){namaShowManual=true;namaManualVal=m.nama}}else{namaOpts='<option value="__manual__" selected>✏️ Input Manual (DB Kosong)</option>';namaShowManual=true}
+  let namaOpts=[],namaShowManual=false,namaManualVal='',selVal='';
+  if(aktifDbMitra.length){
+    aktifDbMitra.forEach(d=>{const isSel=dbMatch&&d.id===dbMatch.id;if(isSel)selVal=d.id;namaOpts.push({value:d.id,label:d.nama,extra:d.nik})});
+    const manSel=!dbMatch&&m.nama;if(manSel)selVal='__manual__';
+    namaOpts.push({value:'__manual__',label:'✏️ Input Manual',special:true});
+    if(!dbMatch&&m.nama){namaShowManual=true;namaManualVal=m.nama}
+  }else{
+    namaOpts=[{value:'__manual__',label:'✏️ Input Manual (DB Kosong)',special:true}];selVal='__manual__';namaShowManual=true}
 
-  /* PERUBAHAN 4: Saat edit, tampilkan nomor lama yang terkunci */
   const isLocked=!!isEdit&&m.nomorKontrak;
   let nkHTML='';
-  if(isLocked){
-    nkHTML='<div class="nk-compact locked" id="fNKPreview"><span class="nk-label"><i class="fas fa-lock" style="font-size:8px;margin-right:2px"></i>Nomor Kontrak (Tetap)</span><span id="fNKText">'+esc(m.nomorKontrak)+'</span><i class="fas fa-lock" style="color:#64748b"></i></div><div id="fNKDupWarn" style="display:none"></div>';
-  } else {
-    nkHTML='<div class="nk-compact" id="fNKPreview"><span class="nk-label">Nomor Kontrak</span><span id="fNKText">'+getNomorPreview(curTT,_editId).nomor+'</span><i class="fas fa-check-circle"></i></div><div id="fNKDupWarn" style="display:none"></div>';
-  }
+  if(isLocked){nkHTML='<div class="nk-compact locked" id="fNKPreview"><span class="nk-label"><i class="fas fa-lock" style="font-size:8px;margin-right:2px"></i>Nomor Kontrak (Tetap)</span><span id="fNKText">'+esc(m.nomorKontrak)+'</span><i class="fas fa-lock" style="color:#64748b"></i></div><div id="fNKDupWarn" style="display:none"></div>'}
+  else{nkHTML='<div class="nk-compact" id="fNKPreview"><span class="nk-label">Nomor Kontrak</span><span id="fNKText">'+getNomorPreview(curTT,_editId).nomor+'</span><i class="fas fa-check-circle"></i></div><div id="fNKDupWarn" style="display:none"></div>'}
+
+  let lampRowsHTML='';lamp.forEach((l,i)=>{lampRowsHTML+=lampRowHTML(l,i,i)});
 
   return'<div class="space-y-3 fade-in">'
   +nkHTML
-  +'<div class="f-section"><div class="f-section-hd"><i class="fas fa-user shd-gold"></i>Data Pribadi Mitra</div><div class="f-section-bd"><div class="f-row f-row-3" style="margin-bottom:8px"><div class="fg" style="grid-column:1/-1"><label class="fg-label">Nama Lengkap<span class="req">*</span></label><select id="fNmSelect" onchange="handleNamaSelect(this.value)" class="fg-select">'+namaOpts+'</select><input id="fNmManual" type="text" value="'+esc(namaManualVal)+'" class="fg-input '+(namaShowManual?'':'hidden')+'" style="margin-top:4px" placeholder="Ketik nama lengkap...">'+(dbMatch?'<div class="fg-hint"><i class="fas fa-database text-blue-400"></i>Data otomatis dari database</div>':'')+'</div><div class="fg"><label class="fg-label">NIK<span class="req">*</span></label><input id="fNik" type="text" value="'+esc(m.nik)+'" maxlength="16" class="fg-input font-mono"></div><div class="fg"><label class="fg-label">No. Telepon</label><input id="fTlp" type="text" value="'+esc(m.noTelepon||'')+'" class="fg-input"></div><div class="fg"><label class="fg-label">Alamat<span class="req">*</span></label><input id="fAl" type="text" value="'+esc(m.alamat)+'" class="fg-input" placeholder="Ketik alamat lengkap..."></div></div></div></div>'
+  +'<div class="f-section"><div class="f-section-hd"><i class="fas fa-user shd-gold"></i>Data Pribadi Mitra</div><div class="f-section-bd"><div class="f-row f-row-3" style="margin-bottom:8px"><div class="fg" style="grid-column:1/-1"><label class="fg-label">Nama Lengkap<span class="req">*</span></label>'+ssHTML('ss-mitra-nm',namaOpts,selVal,'Cari nama mitra...')+'<input id="fNmManual" type="text" value="'+esc(namaManualVal)+'" class="fg-input '+(namaShowManual?'':'hidden')+'" style="margin-top:4px" placeholder="Ketik nama lengkap...">'+(dbMatch?'<div class="fg-hint"><i class="fas fa-database text-blue-400"></i>Data otomatis dari database</div>':'')+'</div><div class="fg"><label class="fg-label">NIK<span class="req">*</span></label><input id="fNik" type="text" value="'+esc(m.nik)+'" maxlength="16" class="fg-input font-mono"></div><div class="fg"><label class="fg-label">No. Telepon</label><input id="fTlp" type="text" value="'+esc(m.noTelepon||'')+'" class="fg-input"></div><div class="fg"><label class="fg-label">Alamat<span class="req">*</span></label><input id="fAl" type="text" value="'+esc(m.alamat)+'" class="fg-input" placeholder="Ketik alamat lengkap..."></div></div></div></div>'
   +'<div class="f-section"><div class="f-section-hd"><i class="fas fa-calendar-alt shd-blue"></i>Tanggal Kontrak<button onclick="$(\'fTT\').value=\'\';$(\'fTS\').value=\'\';updTglPreview()" class="f-btn f-btn-add ml-auto" style="padding:3px 8px;font-size:10px"><i class="fas fa-undo" style="font-size:9px"></i>Reset</button></div><div class="f-section-bd"><div class="f-info-bar" style="margin-bottom:8px"><i class="fas fa-lightbulb"></i>Kosongkan = pakai global. Saat disimpan, tanggal <b>dikunci (snapshot)</b> ke data kontrak.</div><div class="f-row f-row-2" style="margin-bottom:8px"><div class="fg"><label class="fg-label">Tgl Penandatanganan</label><input id="fTT" type="date" value="'+curTT+'" onchange="updTglPreview()" class="fg-input">'+(S.set.tglTandaTangan?'<div class="fg-hint">Global: '+fTglShort(S.set.tglTandaTangan)+'</div>':'')+'</div><div class="fg"><label class="fg-label">Tgl Batas Selesai</label><input id="fTS" type="date" value="'+(m.tglSelesai||'')+'" onchange="updTglPreview()" class="fg-input">'+(S.set.tglSelesai?'<div class="fg-hint">Global: '+fTglShort(S.set.tglSelesai)+'</div>':'<div class="fg-hint">Global: otomatis (akhir bulan)</div>')+'</div></div><div id="tglPreview"></div></div></div>'
-  +'<div class="f-section"><div class="f-section-hd"><i class="fas fa-table shd-green"></i>Lampiran Rincian Honorarium<button onclick="addLampRow()" class="f-btn f-btn-add ml-auto"><i class="fas fa-plus" style="font-size:9px"></i>Tambah</button></div><div class="f-section-bd" style="padding:0">'+(S.jenisKegiatan.length?'<div class="f-info-bar" style="margin:8px 12px;border-radius:0 0 6px 6px"><i class="fas fa-magic"></i>Pilih jenis kegiatan — <b>nilai otomatis terisi</b></div>':'<div class="f-info-bar" style="margin:8px 12px;border-radius:0 0 6px 6px;background:#fef3c7;border-color:#fde68a;color:#92400e"><i class="fas fa-exclamation-triangle"></i>Tambahkan <b>Jenis Kegiatan</b> dulu.</div>')+'<div class="tbl-scroll" style="max-height:28vh;border-radius:0"><table class="w-full ctbl" style="font-size:12px"><thead><tr class="text-left" style="background:linear-gradient(135deg,#0c1a30,#1a3360);color:rgba(255,255,255,0.9)"><th style="padding:5px 8px;width:32px;font-size:11px" class="text-center">No</th><th style="padding:5px 8px;font-size:11px">Jenis Pendataan</th><th style="padding:5px 8px;width:72px;font-size:11px" class="text-center">Jml RD</th><th style="padding:5px 8px;width:110px;font-size:11px" class="text-center">Nilai/RD</th><th style="padding:5px 8px;width:110px;font-size:11px" class="text-center">Total</th><th style="padding:5px 4px;width:28px"></th></tr></thead><tbody id="lampBody">'+lamp.map((l,i)=>lampRowHTML(l,i)).join('')+'</tbody></table></div><div class="f-bar-bottom"><div style="font-size:10px;color:#94a3b8">Maks: '+fRp(S.set.honorMaks)+'</div><div class="f-total-box"><span class="f-total-label">Total:</span><span id="lampTotal" class="f-total-val">'+fRp(0)+'</span><span id="lampWarn" class="f-warn-mini" style="display:none"><i class="fas fa-exclamation-triangle"></i>Melebihi maks!</span></div></div></div></div>'
+  +'<div class="f-section"><div class="f-section-hd"><i class="fas fa-table shd-green"></i>Lampiran Rincian Honorarium<button onclick="addLampRow()" class="f-btn f-btn-add ml-auto"><i class="fas fa-plus" style="font-size:9px"></i>Tambah</button></div><div class="f-section-bd" style="padding:0">'+(S.jenisKegiatan.length?'<div class="f-info-bar" style="margin:8px 12px;border-radius:0 0 6px 6px"><i class="fas fa-magic"></i>Pilih jenis kegiatan — <b>nilai otomatis terisi</b></div>':'<div class="f-info-bar" style="margin:8px 12px;border-radius:0 0 6px 6px;background:#fef3c7;border-color:#fde68a;color:#92400e"><i class="fas fa-exclamation-triangle"></i>Tambahkan <b>Jenis Kegiatan</b> dulu.</div>')+'<div class="tbl-scroll" style="max-height:28vh;border-radius:0"><table class="w-full ctbl" style="font-size:12px"><thead><tr class="text-left" style="background:linear-gradient(135deg,#0c1a30,#1a3360);color:rgba(255,255,255,0.9)"><th style="padding:5px 8px;width:32px;font-size:11px" class="text-center">No</th><th style="padding:5px 8px;font-size:11px">Jenis Pendataan</th><th style="padding:5px 8px;width:72px;font-size:11px" class="text-center">Jml RD</th><th style="padding:5px 8px;width:110px;font-size:11px" class="text-center">Nilai/RD</th><th style="padding:5px 8px;width:110px;font-size:11px" class="text-center">Total</th><th style="padding:5px 4px;width:28px"></th></tr></thead><tbody id="lampBody">'+lampRowsHTML+'</tbody></table></div><div class="f-bar-bottom"><div style="font-size:10px;color:#94a3b8">Maks: '+fRp(S.set.honorMaks)+'</div><div class="f-total-box"><span class="f-total-label">Total:</span><span id="lampTotal" class="f-total-val">'+fRp(0)+'</span><span id="lampWarn" class="f-warn-mini" style="display:none"><i class="fas fa-exclamation-triangle"></i>Melebihi maks!</span></div></div></div></div>'
   +'<div class="f-action-bar" style="margin-top:4px"><button onclick="cM()" class="btn-g px-5 py-2.5 rounded-xl text-sm font-medium"><i class="fas fa-arrow-left mr-1.5"></i>Batal</button><div class="flex gap-2">'+(isEdit?'<button onclick="printK(\''+m.id+'\')" class="btn-print px-4 py-2.5 rounded-xl text-sm font-semibold"><i class="fas fa-print mr-1.5"></i>Cetak</button>':'')+'<button onclick="saveMitra(\''+(m.id||'')+'\')" class="btn-p px-6 py-2.5 rounded-xl text-sm font-semibold"><i class="fas fa-save mr-1.5"></i>'+(isEdit?'Simpan Perubahan':'Simpan Mitra')+'</button></div></div></div>'}
 
-function handleNamaSelect(val){const mi=$('fNmManual'),ni=$('fNik'),tl=$('fTlp'),al=$('fAl');if(val==='__manual__'){mi.classList.remove('hidden');mi.focus();setFieldRO(ni,false);setFieldRO(tl,false);setFieldRO(al,false);ni.value='';tl.value='';al.value=''}else if(val){const d=S.dbMitra.find(x=>x.id===val);if(d){mi.classList.add('hidden');mi.value='';ni.value=d.nik;tl.value=d.noHp||'';al.value=d.alamat;setFieldRO(ni,true);setFieldRO(tl,true);setFieldRO(al,true);toast('Data dari database terisi otomatis','info')}}else{mi.classList.add('hidden');mi.value='';ni.value='';tl.value='';al.value='';setFieldRO(ni,false);setFieldRO(tl,false);setFieldRO(al,false)}}
-function setFieldRO(el,ro){if(ro){el.setAttribute('readonly','');el.classList.add('fg-ro')}else{el.removeAttribute('readonly');el.classList.remove('fg-ro')}}
+function lampRowHTML(l,rowNum,lidx){
+  const kegMatch=findKegiatanByNama(l.jenis);
+  const sortedKeg=[...S.jenisKegiatan].sort((a,b)=>(a.nama||'').localeCompare(b.nama||''));
+  let opts=[],selVal='',showManual=false,manualVal='';
+  if(sortedKeg.length){
+    sortedKeg.forEach(k=>{opts.push({value:k.nama,label:k.nama,extra:Number(k.nilai).toLocaleString('id-ID')});if(kegMatch&&k.nama===l.jenis)selVal=k.nama});
+    opts.push({value:'__manual__',label:'✏️ Lainnya',special:true});
+    if(!kegMatch&&l.jenis){selVal='__manual__';showManual=true;manualVal=l.jenis}
+  }else{opts=[{value:'__manual__',label:'✏️ Ketik Manual',special:true}];selVal='__manual__';showManual=true}
+  const jml=l.jumlah||0,npr=l.nilaiPerRD||0,tot=jml*npr;
+  return'<tr class="border-t border-cool-100" data-lidx="'+lidx+'"><td style="padding:4px 8px;text-align:center;color:#94a3b8;font-size:11px">'+(rowNum+1)+'</td><td style="padding:4px 8px">'+ssHTML('ss-lj-'+lidx,opts,selVal,'Cari jenis...')+'<input type="text" value="'+esc(manualVal)+'" class="lj-manual lamp-input '+(showManual?'':'hidden')+'" style="margin-top:3px;width:100%" placeholder="Ketik jenis..."></td><td style="padding:4px 8px"><input type="number" value="'+(jml||'')+'" min="0" onchange="updLampTotal()" class="lj lamp-input lamp-input-sm lr"></td><td style="padding:4px 8px"><input type="number" value="'+(npr||'')+'" min="0" onchange="updLampTotal()" class="lj lamp-input lamp-input-md ln"></td><td style="padding:4px 8px;text-align:right;font-family:Courier New,monospace;font-size:11.5px;font-weight:600;color:#0c1424">'+(tot?Number(tot).toLocaleString('id-ID'):'-')+'</td><td style="padding:4px 4px"><button onclick="this.closest(\'tr\').remove();updLampTotal()" class="f-btn-del"><i class="fas fa-times" style="font-size:10px"></i></button></td></tr>'}
 
-function lampRowHTML(l,i){const kegMatch=findKegiatanByNama(l.jenis);let showManual=false,manualVal='',selVal='';if(kegMatch){selVal=l.jenis}else if(l.jenis){selVal='__manual__';showManual=true;manualVal=l.jenis}let opts='';const sortedKeg=[...S.jenisKegiatan].sort((a,b)=>(a.nama||'').localeCompare(b.nama||''));if(sortedKeg.length){opts+='<option value="">-- Pilih Jenis --</option>';sortedKeg.forEach(k=>{opts+='<option value="'+esc(k.nama)+'"'+(k.nama===selVal?' selected':'')+'>'+esc(k.nama)+' · '+Number(k.nilai).toLocaleString('id-ID')+'</option>'});opts+='<option value="__manual__"'+(selVal==='__manual__'?' selected':'')+'>✏️ Lainnya</option>'}else{opts='<option value="__manual__" selected>✏️ Ketik Manual</option>';showManual=true}const jml=l.jumlah||0,npr=l.nilaiPerRD||0,tot=jml*npr;return'<tr class="border-t border-cool-100"><td style="padding:4px 8px;text-align:center;color:#94a3b8;font-size:11px">'+(i+1)+'</td><td style="padding:4px 8px"><select class="lj lamp-input lamp-select" onchange="handleJenisSelect(this)" style="width:100%">'+opts+'</select><input type="text" value="'+esc(manualVal)+'" class="lj-manual lamp-input '+(showManual?'':'hidden')+'" style="margin-top:3px;width:100%" placeholder="Ketik jenis..." onchange="updLampTotal()"></td><td style="padding:4px 8px"><input type="number" value="'+(jml||'')+'" min="0" onchange="updLampTotal()" class="lj lamp-input lamp-input-sm lr"></td><td style="padding:4px 8px"><input type="number" value="'+(npr||'')+'" min="0" onchange="updLampTotal()" class="lj lamp-input lamp-input-md ln"></td><td style="padding:4px 8px;text-align:right;font-family:Courier New,monospace;font-size:11.5px;font-weight:600;color:#0c1424">'+(tot?Number(tot).toLocaleString('id-ID'):'-')+'</td><td style="padding:4px 4px"><button onclick="this.closest(\'tr\').remove();updLampTotal()" class="f-btn-del"><i class="fas fa-times" style="font-size:10px"></i></button></td></tr>'}
-function handleJenisSelect(sel){const row=sel.closest('tr'),mi=row.querySelector('.lj-manual'),ni=row.querySelector('.ln');if(sel.value==='__manual__'){mi.classList.remove('hidden');mi.focus();ni.value=''}else if(sel.value){mi.classList.add('hidden');mi.value='';const k=S.jenisKegiatan.find(x=>x.nama===sel.value);if(k)ni.value=k.nilai}else{mi.classList.add('hidden');mi.value='';ni.value=''}updLampTotal()}
-function addLampRow(){$('lampBody').insertAdjacentHTML('beforeend',lampRowHTML({jenis:'',jumlah:0,nilaiPerRD:0},$('lampBody').children.length))}
-function updLampTotal(){const rows=$('lampBody').children;let tot=0;for(const r of rows){const j=Number(r.querySelector('.lr').value)||0,n=Number(r.querySelector('.ln').value)||0;r.children[4].textContent=(j*n)?Number(j*n).toLocaleString('id-ID'):'-';tot+=j*n}$('lampTotal').textContent=fRp(tot);const w=$('lampWarn'),tv=$('lampTotal');tot>S.set.honorMaks?(w.style.display='inline-flex',tv.classList.add('over')):(w.style.display='none',tv.classList.remove('over'))}
+function handleNamaSelect(val){
+  const mi=$('fNmManual'),ni=$('fNik'),tl=$('fTlp'),al=$('fAl');
+  if(val==='__manual__'){mi.classList.remove('hidden');mi.focus();setFieldRO(ni,false);setFieldRO(tl,false);setFieldRO(al,false);ni.value='';tl.value='';al.value=''}
+  else if(val){const d=S.dbMitra.find(x=>x.id===val);if(d){mi.classList.add('hidden');mi.value='';ni.value=d.nik;tl.value=d.noHp||'';al.value=d.alamat;setFieldRO(ni,true);setFieldRO(tl,true);setFieldRO(al,true);toast('Data dari database terisi otomatis','info')}}
+  else{mi.classList.add('hidden');mi.value='';ni.value='';tl.value='';al.value='';setFieldRO(ni,false);setFieldRO(tl,false);setFieldRO(al,false)}}
+function setFieldRO(el,ro){if(!el)return;if(ro){el.setAttribute('readonly','');el.classList.add('fg-ro')}else{el.removeAttribute('readonly');el.classList.remove('fg-ro')}}
 
-/* ===== PERUBAHAN 5: updTglPreview tidak mengubah nomor saat edit ===== */
+function handleJenisSelect(lidx,val){
+  const row=document.querySelector('[data-lidx="'+lidx+'"]');if(!row)return;
+  const ni=row.querySelector('.ln'),mi=row.querySelector('.lj-manual');
+  if(val==='__manual__'){mi.classList.remove('hidden');mi.focus();ni.value=''}
+  else if(val){mi.classList.add('hidden');mi.value='';const k=S.jenisKegiatan.find(x=>x.nama===val);if(k)ni.value=k.nilai}
+  else{mi.classList.add('hidden');mi.value='';ni.value=''}updLampTotal()}
+
+function addLampRow(){
+  const idx=_lampIdx++;
+  const html=lampRowHTML({jenis:'',jumlah:0,nilaiPerRD:0},$('lampBody').children.length,idx);
+  $('lampBody').insertAdjacentHTML('beforeend',html);
+  ssInit('ss-lj-'+idx,val=>handleJenisSelect(idx,val));
+  updLampTotal()}
+
+function updLampTotal(){
+  const rows=$('lampBody').children;let tot=0;
+  for(const r of rows){const j=Number(r.querySelector('.lr').value)||0,n=Number(r.querySelector('.ln').value)||0;r.children[4].textContent=(j*n)?Number(j*n).toLocaleString('id-ID'):'-';tot+=j*n}
+  $('lampTotal').textContent=fRp(tot);const w=$('lampWarn'),tv=$('lampTotal');
+  tot>S.set.honorMaks?(w.style.display='inline-flex',tv.classList.add('over')):(w.style.display='none',tv.classList.remove('over'))}
+
 function updTglPreview(){
-  /* Saat edit, nomor terkunci — tidak perlu update preview nomor */
-  if(_editId){
-    const m=S.mitra.find(x=>x.id===_editId);
-    if(m&&m.nomorKontrak){
-      const nkEl=$('fNKPreview'),nkText=$('fNKText');
-      if(nkText)nkText.textContent=m.nomorKontrak;
-      if(nkEl&&!nkEl.classList.contains('locked')){
-        nkEl.classList.add('locked');
-        const labelEl=nkEl.querySelector('.nk-label');
-        if(labelEl)labelEl.innerHTML='<i class="fas fa-lock" style="font-size:8px;margin-right:2px"></i>Nomor Kontrak (Tetap)';
-        const iconEl=nkEl.querySelector('i:last-child');
-        if(iconEl){iconEl.className='fas fa-lock';iconEl.style.color='#64748b'}
-      }
-      const dupWarn=$('fNKDupWarn');
-      if(dupWarn)dupWarn.style.display='none';
-      updTglChipsOnly();
-      return;
-    }
-  }
-  const fTT=$('fTT')?.value||'',fTS=$('fTS')?.value||'';
-  const preview=getNomorPreview(fTT,_editId);
+  if(_editId){const m=S.mitra.find(x=>x.id===_editId);if(m&&m.nomorKontrak){const nkEl=$('fNKPreview'),nkText=$('fNKText');if(nkText)nkText.textContent=m.nomorKontrak;if(nkEl&&!nkEl.classList.contains('locked')){nkEl.classList.add('locked');const labelEl=nkEl.querySelector('.nk-label');if(labelEl)labelEl.innerHTML='<i class="fas fa-lock" style="font-size:8px;margin-right:2px"></i>Nomor Kontrak (Tetap)';const iconEl=nkEl.querySelector('i:last-child');if(iconEl){iconEl.className='fas fa-lock';iconEl.style.color='#64748b'}}const dupWarn=$('fNKDupWarn');if(dupWarn)dupWarn.style.display='none';updTglChipsOnly();return}}
+  const fTT=$('fTT')?.value||'';const preview=getNomorPreview(fTT,_editId);
   const nkEl=$('fNKPreview'),nkText=$('fNKText'),dupWarn=$('fNKDupWarn');
   if(nkText)nkText.textContent=preview.nomor;
-  if(nkEl){if(preview.isDup){nkEl.className='nk-compact dup-warn';if(nkEl.id)nkEl.id='fNKPreview';const iconEl=nkEl.querySelector('i:last-child');if(iconEl){iconEl.className='fas fa-exclamation-triangle';iconEl.style.color=''}const labelEl=nkEl.querySelector('.nk-label');if(labelEl)labelEl.innerHTML='Nomor Kontrak'}else{nkEl.className='nk-compact';if(nkEl.id)nkEl.id='fNKPreview';const iconEl=nkEl.querySelector('i:last-child');if(iconEl){iconEl.className='fas fa-check-circle';iconEl.style.color=''}const labelEl=nkEl.querySelector('.nk-label');if(labelEl)labelEl.innerHTML='Nomor Kontrak'}}
+  if(nkEl){if(preview.isDup){nkEl.className='nk-compact dup-warn';nkEl.id='fNKPreview';const iconEl=nkEl.querySelector('i:last-child');if(iconEl){iconEl.className='fas fa-exclamation-triangle';iconEl.style.color=''}const labelEl=nkEl.querySelector('.nk-label');if(labelEl)labelEl.innerHTML='Nomor Kontrak'}else{nkEl.className='nk-compact';nkEl.id='fNKPreview';const iconEl=nkEl.querySelector('i:last-child');if(iconEl){iconEl.className='fas fa-check-circle';iconEl.style.color=''}const labelEl=nkEl.querySelector('.nk-label');if(labelEl)labelEl.innerHTML='Nomor Kontrak'}}
   if(dupWarn){if(preview.isDup){dupWarn.style.display='block';dupWarn.innerHTML='<div class="dup-warn-bar"><i class="fas fa-exclamation-triangle"></i><span><b>Duplikat!</b> Nomor ini sudah dipakai oleh <b>'+esc(preview.conflictWith)+'</b>.</span></div>'}else{dupWarn.style.display='none'}}
-  updTglChipsOnly();
-}
+  updTglChipsOnly()}
 
-/* Fungsi helper untuk update hanya chip tanggal, bukan nomor */
 function updTglChipsOnly(){
   const fTT=$('fTT')?.value||'',fTS=$('fTS')?.value||'';
   const useTT=fTT||S.set.tglTandaTangan||'',useSelesai=fTS||S.set.tglSelesai||getAutoDates().selesai;
@@ -486,23 +446,16 @@ function updTglChipsOnly(){
   const el=$('tglPreview');if(!el)return;
   el.innerHTML='<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">'
   +'<span class="tgl-chip '+(isCustomBulan?'from-custom':'from-global')+'"><i class="fas '+(isCustomBulan?'fa-user':'fa-globe')+'" style="font-size:8px"></i>'+bulanNm+' '+tahunStr+'</span>'
-  +'<span style="font-size:10px;color:#cbd5e1">|</span>'
-  +'<span style="font-size:10.5px;color:#475569"><i class="fas fa-calendar-day" style="font-size:9px;color:#94a3b8;margin-right:3px"></i>'+hariT+'</span>'
-  +'<span style="font-size:10px;color:#cbd5e1">|</span>'
-  +'<span style="font-size:10.5px;color:#475569"><i class="fas fa-flag-checkered" style="font-size:9px;color:#94a3b8;margin-right:3px"></i>'+fTglShort(useSelesai)+'</span>'
-  +'<span style="font-size:10px;color:#cbd5e1">|</span>'
-  +'<span class="tgl-chip from-calc"><i class="fas fa-handshake" style="font-size:8px"></i>Serah: '+fTglShort(fmtD(serah))+'</span>'
-  +'<span style="font-size:10px;color:#cbd5e1">|</span>'
-  +'<span style="font-size:10.5px;color:#475569"><i class="fas fa-clock" style="font-size:9px;color:#94a3b8;margin-right:3px"></i>'+durasi+'</span>'
+  +'<span style="font-size:10px;color:#cbd5e1">|</span><span style="font-size:10.5px;color:#475569"><i class="fas fa-calendar-day" style="font-size:9px;color:#94a3b8;margin-right:3px"></i>'+hariT+'</span>'
+  +'<span style="font-size:10px;color:#cbd5e1">|</span><span style="font-size:10.5px;color:#475569"><i class="fas fa-flag-checkered" style="font-size:9px;color:#94a3b8;margin-right:3px"></i>'+fTglShort(useSelesai)+'</span>'
+  +'<span style="font-size:10px;color:#cbd5e1">|</span><span class="tgl-chip from-calc"><i class="fas fa-handshake" style="font-size:8px"></i>Serah: '+fTglShort(fmtD(serah))+'</span>'
+  +'<span style="font-size:10px;color:#cbd5e1">|</span><span style="font-size:10.5px;color:#475569"><i class="fas fa-clock" style="font-size:9px;color:#94a3b8;margin-right:3px"></i>'+durasi+'</span>'
   +(!isCustomBulan&&!fTS?'<span class="snap-badge" style="margin-left:2px"><i class="fas fa-camera"></i>Akan di-snapshot</span>':'<span class="snap-badge" style="margin-left:2px;background:#fef3c7;border-color:#fde68a;color:#92400e"><i class="fas fa-lock"></i>Custom</span>')
-  +'</div>';
-}
+  +'</div>'}
 
-/* ===== PERUBAHAN 6: saveMitra — edit pertahankan nomor, add hitung eksplisit ===== */
 function saveMitra(editId){
-  const selVal=$('fNmSelect').value;let nama='';
-  if(selVal==='__manual__'){nama=$('fNmManual').value.trim()}
-  else if(selVal){const d=S.dbMitra.find(x=>x.id===selVal);nama=d?d.nama:''}
+  const ssVal_nama=ssVal('ss-mitra-nm');let nama='';
+  if(ssVal_nama==='__manual__'){nama=$('fNmManual').value.trim()}else if(ssVal_nama){const d=S.dbMitra.find(x=>x.id===ssVal_nama);nama=d?d.nama:''}
   if(!nama)return toast('Nama wajib diisi','warning');
   const nik=$('fNik').value.trim(),alamat=$('fAl').value.trim();
   if(!nik||nik.length<10)return toast('NIK tidak valid','warning');
@@ -510,52 +463,25 @@ function saveMitra(editId){
   const tl=$('fTlp').value.trim();
   const tglTT=$('fTT').value.trim(),tglSelesai=$('fTS').value.trim();
   const snapTT=tglTT||S.set.tglTandaTangan||'';
-  let snapTS=tglSelesai;
-  if(!snapTS){if(S.set.tglSelesai)snapTS=S.set.tglSelesai;else if(snapTT)snapTS=calcSelesaiFromTTD(snapTT);else snapTS=getAutoDates().selesai}
+  let snapTS=tglSelesai;if(!snapTS){if(S.set.tglSelesai)snapTS=S.set.tglSelesai;else if(snapTT)snapTS=calcSelesaiFromTTD(snapTT);else snapTS=getAutoDates().selesai}
   const lampRows=$('lampBody').children;const lamp=[];
-  for(const r of lampRows){const sel=r.querySelector('.lj'),mi=r.querySelector('.lj-manual');let jenis='';if(sel.value==='__manual__')jenis=mi?mi.value.trim():'';else jenis=sel.value.trim();lamp.push({jenis,jumlah:Number(r.querySelector('.lr').value)||0,nilaiPerRD:Number(r.querySelector('.ln').value)||0})}
+  for(const r of lampRows){const mi=r.querySelector('.lj-manual');const ssId=r.querySelector('[id^="ss-lj-"]');let jenis='';if(ssId){const lid=ssId.id.replace('ss-','');const v=ssVal(lid);if(v==='__manual__')jenis=mi?mi.value.trim():'';else jenis=v.trim()}lamp.push({jenis,jumlah:Number(r.querySelector('.lr').value)||0,nilaiPerRD:Number(r.querySelector('.ln').value)||0})}
   const totalHonor=lamp.reduce((s,l)=>s+l.jumlah*l.nilaiPerRD,0);
   if(totalHonor>S.set.honorMaks)return toast('Total honor melebihi batas maksimal','warning');
+  if(editId){const idx=S.mitra.findIndex(x=>x.id===editId);if(idx>-1){S.mitra[idx]={...S.mitra[idx],nama,nik,alamat,noTelepon:tl,tglTandaTangan:snapTT,tglSelesai:snapTS,lampiran:lamp,totalHonor,updatedAt:new Date().toISOString()}}toast('Data mitra diperbarui (nomor kontrak tetap: '+S.mitra.find(x=>x.id===editId)?.nomorKontrak+')')}
+  else{const preview=getNomorPreview(snapTT,'');if(preview.isDup){toast('Duplikat! Nomor '+preview.nomor+' sudah dipakai oleh "'+preview.conflictWith+'".','error');return}S.mitra.push({id:gid(),nomorKontrak:preview.nomor,nama,nik,alamat,noTelepon:tl,tglTandaTangan:snapTT,tglSelesai:snapTS,lampiran:lamp,totalHonor,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});toast('Mitra berhasil ditambahkan dengan nomor '+preview.nomor)}
+  aSave();cM();render()}
 
-  if(editId){
-    /* ===== EDIT: Pertahankan nomor kontrak yang sudah ada ===== */
-    const idx=S.mitra.findIndex(x=>x.id===editId);
-    if(idx>-1){
-      const existing=S.mitra[idx];
-      S.mitra[idx]={
-        ...existing,
-        nama,nik,alamat,noTelepon:tl,
-        tglTandaTangan:snapTT,tglSelesai:snapTS,
-        lampiran:lamp,totalHonor,
-        updatedAt:new Date().toISOString()
-      };
-    }
-    toast('Data mitra diperbarui (nomor kontrak tetap: '+S.mitra.find(x=>x.id===editId)?.nomorKontrak+')');
-  } else {
-    /* ===== TAMBAH: Hitung nomor baru secara eksplisit ===== */
-    const preview=getNomorPreview(snapTT,'');
-    if(preview.isDup){toast('Duplikat! Nomor '+preview.nomor+' sudah dipakai oleh "'+preview.conflictWith+'".','error');return}
-    const newMitra={
-      id:gid(),
-      nomorKontrak:preview.nomor,
-      nama,nik,alamat,noTelepon:tl,
-      tglTandaTangan:snapTT,tglSelesai:snapTS,
-      lampiran:lamp,totalHonor,
-      createdAt:new Date().toISOString(),
-      updatedAt:new Date().toISOString()
-    };
-    S.mitra.push(newMitra);
-    toast('Mitra berhasil ditambahkan dengan nomor '+preview.nomor);
-  }
-  aSave();cM();render();
-}
-
-function editM(id){const m=S.mitra.find(x=>x.id===id);if(!m)return;_editId=id;oM('<i class="fas fa-pen text-amber-500 mr-2"></i>Edit Mitra Statistik',mitraFormHTML(m,true),true,id);setTimeout(()=>{updTglPreview();updLampTotal()},60)}
+function editM(id){const m=S.mitra.find(x=>x.id===id);if(!m)return;_editId=id;_lampIdx=0;oM('<i class="fas fa-pen text-amber-500 mr-2"></i>Edit Mitra Statistik',mitraFormHTML(m,true),true,id);setTimeout(()=>{ssInit('ss-mitra-nm',handleNamaSelect);document.querySelectorAll('[data-lidx]').forEach(row=>{const idx=row.dataset.lidx;ssInit('ss-lj-'+idx,val=>handleJenisSelect(idx,val))});updTglPreview();updLampTotal()},60)}
 function delM(id){const m=S.mitra.find(x=>x.id===id);if(!m)return;oCf('Hapus Kontrak','"'+m.nama+'" ('+m.nomorKontrak+') akan dihapus.',()=>{S.mitra=S.mitra.filter(x=>x.id!==id);regenAllNomor();aSave();render();toast('Kontrak berhasil dihapus')})}
 
 /* ===== SETTINGS ===== */
+let _setBulanInit=false;
 function rSettings(){
   const s=S.set,autoD=getAutoDates(),selesaiDisplay=s.tglSelesai||autoD.selesai,selesaiIsAuto=!s.tglSelesai;
+  const bulanOpts=BL.map((b,i)=>({value:String(i),label:b}));bulanOpts.unshift({value:'-1',label:'-- Pilih Bulan --'});
+  const bulanSel=String(s.bulan);
+  _setBulanInit=false;
   return'<div class="fade-in max-w-3xl mx-auto"><div class="mb-6"><h2 class="text-2xl font-bold">Pengaturan</h2><p class="text-gray-500 text-sm mt-1">Konfigurasi PPK/BPS dan periode default</p></div>'
   +'<div class="bg-white rounded-2xl border border-cool-200 shadow-sm p-6 space-y-6">'
   +'<div class="bg-blue-50 rounded-xl p-4 text-sm text-blue-800 flex items-start gap-3"><i class="fas fa-info-circle mt-0.5"></i><div><strong>Format nomor:</strong> DDMMNNN/PPK/SPKM/YYYY — YYYY diambil dari <b>tahun TTD</b>. Nomor kontrak yang sudah dibuat <b>tidak akan berubah</b> saat diedit.</div></div>'
@@ -565,28 +491,30 @@ function rSettings(){
   +'<div class="bg-amber-50 rounded-xl p-3 text-xs text-amber-800 mb-4 flex items-start gap-2"><i class="fas fa-shield-alt mt-0.5"></i><div><strong>Snapshot:</strong> Tanggal dikunci ke data kontrak saat disimpan. Mengubah periode di sini <b>tidak mengubah</b> kontrak lama.</div></div>'
   +'<div class="grid grid-cols-1 md:grid-cols-3 gap-4">'
   +'<div><label class="block text-xs font-medium text-gray-500 mb-1">Honor Maksimal (Rp) <span class="text-red-400">*</span></label><input id="sHonor" type="number" value="'+s.honorMaks+'" min="0" class="w-full px-3 py-2.5 rounded-xl border border-cool-200 text-sm font-mono"></div>'
-  +'<div><label class="block text-xs font-medium text-gray-500 mb-1">Bulan Default</label><select id="sBulan" class="w-full px-3 py-2.5 rounded-xl border border-cool-200 text-sm">'+BL.map((b,i)=>'<option value="'+i+'" '+(i===s.bulan?'selected':'')+'>'+b+'</option>').join('')+'</select></div>'
+  +'<div><label class="block text-xs font-medium text-gray-500 mb-1">Bulan Default</label><div id="ss-set-bulan-wrap">'+ssHTML('ss-set-bulan',bulanOpts,bulanSel,'Cari bulan...')+'</div></div>'
   +'<div><label class="block text-xs font-medium text-gray-500 mb-1">Tahun Default</label><input id="sTahun" type="number" value="'+s.tahun+'" class="w-full px-3 py-2.5 rounded-xl border border-cool-200 text-sm"></div>'
   +'<div><label class="block text-xs font-medium text-gray-500 mb-1">Tgl TTD Default</label><input id="sTgl" type="date" value="'+s.tglTandaTangan+'" class="w-full px-3 py-2.5 rounded-xl border border-cool-200 text-sm">'+(s.tglTandaTangan?'<div class="fg-hint" style="margin-top:2px"><i class="fas fa-calendar-check text-green-400"></i>Terisi: '+fTglShort(s.tglTandaTangan)+'</div>':'<div class="fg-hint" style="margin-top:2px"><i class="fas fa-exclamation-circle text-amber-400"></i>Belum diisi</div>')+'</div>'
   +'<div><label class="block text-xs font-medium text-gray-500 mb-1">Tgl Selesai Default</label><input id="sTglSelesai" type="date" value="'+s.tglSelesai+'" class="w-full px-3 py-2.5 rounded-xl border border-cool-200 text-sm"><div class="fg-hint" style="margin-top:2px"><i class="fas '+(selesaiIsAuto?'fa-magic text-blue-400':'fa-lock text-green-400')+'"></i>'+(selesaiIsAuto?'Kosongkan = otomatis':'Manual: '+fTglShort(s.tglSelesai))+' — Efektif: <b>'+fTglShort(selesaiDisplay)+'</b></div></div>'
   +'</div>'
   +'<div class="bg-gradient-to-br from-navy-900 to-navy-800 rounded-xl p-4 text-white mt-4"><div class="flex flex-wrap gap-6 text-xs"><div><span class="text-blue-300/50 block mb-1">PERIODE AKTIF</span><span class="text-lg font-bold">'+BL[s.bulan]+' '+s.tahun+'</span></div><div><span class="text-blue-300/50 block mb-1">TTD</span><span class="text-blue-200 font-medium">'+fTglShort(s.tglTandaTangan||'-')+'</span></div><div><span class="text-blue-300/50 block mb-1">SELESAI</span><span class="text-blue-200 font-medium">'+fTglShort(selesaiDisplay)+'</span></div><div><span class="text-blue-300/50 block mb-1">HONOR MAKS</span><span class="text-gold-400 font-semibold">'+fRp(s.honorMaks)+'</span></div></div></div>'
   +'</div>'
-  +'<div class="flex justify-end"><button onclick="saveSettings()" class="btn-p px-8 py-3 rounded-xl text-sm font-semibold"><i class="fas fa-save mr-2"></i>Simpan Pengaturan</button></div></div></div>'
-}
+  +'<div class="flex justify-end"><button onclick="saveSettings()" class="btn-p px-8 py-3 rounded-xl text-sm font-semibold"><i class="fas fa-save mr-2"></i>Simpan Pengaturan</button></div></div></div>'}
+
+function initSettingsSS(){if(_setBulanInit)return;_setBulanInit=true;ssInit('ss-set-bulan',val=>{})}
+
 function saveSettings(){
   const ppkNama=$('sPpkNm').value.trim(),ppkNip=$('sPpkNip').value.trim(),bpsNama=$('sBpsNm').value.trim(),bpsAlamat=$('sBpsAl').value.trim(),kota=$('sKota').value.trim(),honorMaks=Number($('sHonor').value)||0;
   if(!ppkNama)return toast('Nama PPK wajib diisi','warning');if(!ppkNip)return toast('NIP PPK wajib diisi','warning');if(!bpsNama)return toast('Nama BPS wajib diisi','warning');if(!bpsAlamat)return toast('Alamat BPS wajib diisi','warning');if(!kota)return toast('Kota wajib diisi','warning');if(!honorMaks||honorMaks<=0)return toast('Honor maksimal harus lebih dari 0','warning');
   S.set.ppkNama=ppkNama;S.set.ppkNip=ppkNip;S.set.bpsNama=bpsNama;S.set.bpsAlamat=bpsAlamat;S.set.kota=kota;S.set.honorMaks=honorMaks;
-  S.set.bulan=Number($('sBulan').value);S.set.tahun=Number($('sTahun').value);S.set.tglTandaTangan=$('sTgl').value;S.set.tglSelesai=$('sTglSelesai').value.trim()||'';
-  regenAllNomor();aSave();render();toast('Pengaturan berhasil disimpan');
-}
+  const bVal=ssVal('ss-set-bulan');S.set.bulan=(bVal&&bVal!=='-1')?Number(bVal):0;
+  S.set.tahun=Number($('sTahun').value);S.set.tglTandaTangan=$('sTgl').value;S.set.tglSelesai=$('sTglSelesai').value.trim()||'';
+  regenAllNomor();aSave();render();toast('Pengaturan berhasil disimpan')}
 
 /* ===== EXPORT / IMPORT ===== */
 let impMode='merge';
 function rExIm(){return'<div class="fade-in max-w-3xl mx-auto"><div class="mb-6"><h2 class="text-2xl font-bold">Export / Import Data</h2><p class="text-gray-500 text-sm mt-1">Backup dan pemulihan seluruh data</p></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-white rounded-2xl border border-cool-200 shadow-sm p-6"><div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center mb-4"><i class="fas fa-file-export text-green-600 text-lg"></i></div><h3 class="font-bold mb-1">Export Data</h3><p class="text-gray-500 text-sm mb-5">Unduh seluruh data lengkap.</p><div class="space-y-3"><button onclick="exJSON()" class="w-full btn-g px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2"><i class="fas fa-code text-gold-600"></i>Export JSON</button><button onclick="exCSV()" class="w-full btn-g px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2"><i class="fas fa-table text-blue-600"></i>Export CSV Kontrak</button></div></div><div class="bg-white rounded-2xl border border-cool-200 shadow-sm p-6"><div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center mb-4"><i class="fas fa-file-import text-amber-600 text-lg"></i></div><h3 class="font-bold mb-1">Import Data</h3><p class="text-gray-500 text-sm mb-5">Pulihkan dari file JSON.</p><div class="space-y-4"><div class="border-2 border-dashed border-cool-200 rounded-xl p-6 text-center hover:border-gold-400 transition-colors"><i class="fas fa-cloud-upload-alt text-2xl text-gray-300 mb-2"></i><p class="text-sm text-gray-500 mb-3">Seret file JSON atau</p><label class="inline-block cursor-pointer btn-p px-4 py-2 rounded-xl text-sm font-medium">Pilih File<input type="file" accept=".json" onchange="imJSON(this.files[0])" class="hidden"></label></div><div class="flex gap-2"><button onclick="impMode=\'merge\';render()" class="flex-1 px-3 py-2 rounded-lg text-xs font-medium '+(impMode==='merge'?'bg-navy-900 text-white':'bg-cool-100 text-gray-600')+' transition">Gabungkan</button><button onclick="impMode=\'replace\';render()" class="flex-1 px-3 py-2 rounded-lg text-xs font-medium '+(impMode==='replace'?'bg-navy-900 text-white':'bg-cool-100 text-gray-600')+' transition">Ganti Semua</button></div></div></div></div><div class="mt-8 bg-white rounded-2xl border border-cool-200 shadow-sm p-6"><h3 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-database text-gold-600"></i> Ringkasan Data</h3><div class="grid grid-cols-2 md:grid-cols-5 gap-4"><div class="bg-cool-50 rounded-xl p-4 text-center"><p class="text-2xl font-bold">'+S.dbMitra.length+'</p><p class="text-xs text-gray-500 mt-1">DB Mitra</p></div><div class="bg-cool-50 rounded-xl p-4 text-center"><p class="text-2xl font-bold">'+S.jenisKegiatan.length+'</p><p class="text-xs text-gray-500 mt-1">Jenis Kegiatan</p></div><div class="bg-cool-50 rounded-xl p-4 text-center"><p class="text-2xl font-bold">'+S.mitra.length+'</p><p class="text-xs text-gray-500 mt-1">Kontrak</p></div><div class="bg-cool-50 rounded-xl p-4 text-center"><p class="text-lg font-bold">'+fRp(S.mitra.reduce((s,m)=>s+(m.totalHonor||0),0))+'</p><p class="text-xs text-gray-500 mt-1">Total Honor</p></div><div class="bg-cool-50 rounded-xl p-4 text-center"><p class="text-2xl font-bold '+(findDuplicates().length?'text-red-600':'')+'">'+findDuplicates().length+'</p><p class="text-xs text-gray-500 mt-1">Duplikat</p></div></div><div class="mt-4 flex flex-wrap gap-3"><button onclick="oCf(\'Hapus Semua Data\',\'Seluruh data akan dihapus permanen.\',()=>{S.mitra=[];S.dbMitra=[];S.jenisKegiatan=[];localStorage.removeItem(\'kontrakApp\');$(\'svSt\').textContent=\'Data dihapus\';S.lastSaved=null;render();toast(\'Semua data dihapus\')})" class="btn-d px-4 py-2.5 rounded-xl text-sm font-medium"><i class="fas fa-trash-alt mr-2"></i>Hapus Semua Data</button>'+(findDuplicates().length?'<button onclick="fixDuplicates();aSave();render();toast(\'Duplikat diperbaiki\')" class="btn-p px-4 py-2.5 rounded-xl text-sm font-medium"><i class="fas fa-wrench mr-2"></i>Perbaiki Duplikat</button>':'')+'</div></div></div>'}
 
-function exJSON(){if(!S.mitra.length&&!S.set.ppkNama&&!S.dbMitra.length&&!S.jenisKegiatan.length)return toast('Tidak ada data','warning');dl(JSON.stringify({version:'3.3',app:'KONTRAK',exportDate:new Date().toISOString(),settings:S.set,mitra:S.mitra,dbMitra:S.dbMitra,jenisKegiatan:S.jenisKegiatan},null,2),'kontrak-backup-'+new Date().toISOString().split('T')[0]+'.json','application/json');toast('Data berhasil diexport')}
+function exJSON(){if(!S.mitra.length&&!S.set.ppkNama&&!S.dbMitra.length&&!S.jenisKegiatan.length)return toast('Tidak ada data','warning');dl(JSON.stringify({version:'3.4',app:'KONTRAK',exportDate:new Date().toISOString(),settings:S.set,mitra:S.mitra,dbMitra:S.dbMitra,jenisKegiatan:S.jenisKegiatan},null,2),'kontrak-backup-'+new Date().toISOString().split('T')[0]+'.json','application/json');toast('Data berhasil diexport')}
 function exCSV(){if(!S.mitra.length)return toast('Tidak ada data','warning');const h=['No','Nomor Kontrak','Nama','NIK','Alamat','Telepon','Tgl TTD','Tgl Selesai','Bulan Kontrak','Jenis','Jumlah','Nilai','Total Honor'];const rows=[];S.mitra.forEach((m,i)=>{const bt=getMitraBulanTahun(m);const bs=BL[bt.bulan]+' '+bt.tahun;if(m.lampiran&&m.lampiran.some(l=>l.jenis)){m.lampiran.forEach(l=>{if(l.jenis)rows.push([i+1,m.nomorKontrak,m.nama,m.nik,m.alamat,m.noTelepon,m.tglTandaTangan||'SNAPSHOT',m.tglSelesai||'SNAPSHOT',bs,l.jenis,l.jumlah,l.nilaiPerRD,l.jumlah*l.nilaiPerRD])})}else rows.push([i+1,m.nomorKontrak,m.nama,m.nik,m.alamat,m.noTelepon,m.tglTandaTangan||'SNAPSHOT',m.tglSelesai||'SNAPSHOT',bs,'-','0','0','0'])});dl('\ufeff'+[h,...rows].map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n'),'mitra-'+new Date().toISOString().split('T')[0]+'.csv','text/csv;charset=utf-8');toast('CSV berhasil diexport')}
 function dl(c,f,t){const b=new Blob([c],{type:t}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=f;a.click();URL.revokeObjectURL(u)}
 function imJSON(file){if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.mitra&&!d.settings&&!d.dbMitra&&!d.jenisKegiatan)throw new Error('Format tidak valid');if(impMode==='replace'){if(d.settings)Object.assign(S.set,d.settings);S.mitra=d.mitra||[];S.dbMitra=d.dbMitra||[];S.jenisKegiatan=d.jenisKegiatan||[]}else{if(d.settings&&!S.set.ppkNama)Object.assign(S.set,d.settings);const exI=new Set(S.mitra.map(m=>m.id));(d.mitra||[]).forEach(m=>{if(exI.has(m.id))m.id=gid();S.mitra.push(m)});const exD=new Set(S.dbMitra.map(m=>m.id));(d.dbMitra||[]).forEach(m=>{if(exD.has(m.id))m.id=gid();S.dbMitra.push(m)});const exK=new Set(S.jenisKegiatan.map(k=>k.id));(d.jenisKegiatan||[]).forEach(k=>{if(exK.has(k.id))k.id=gid();S.jenisKegiatan.push(k)})}S.dbMitra.forEach(m=>{if(m.aktif===undefined)m.aktif=true});regenAllNomor();aSave();render();toast('Berhasil mengimpor')}catch(err){toast('Gagal: '+err.message,'error')}};r.readAsText(file)}
@@ -598,26 +526,12 @@ function _printToolbar(sub,mono,btnLabel){return'<div class="no-print" style="po
 function _printCSS(){return'<style>@page{size:A4;margin:13mm 18mm}*{margin:0;padding:0;box-sizing:border-box}body{font-family:\'Times New Roman\',Times,serif;font-size:11.5pt;line-height:1.65;color:#000;background:#d4d4d4}.paper{width:210mm;min-height:297mm;margin:20px auto 40px auto;padding:18mm 18mm 18mm 22mm;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.08),0 8px 32px rgba(0,0,0,0.12);position:relative;box-sizing:border-box}@media print{body{background:#fff!important}.paper{width:auto;min-height:auto;margin:0!important;padding:0!important;box-shadow:none!important}.no-print{display:none!important}}.kop{text-align:center;padding-bottom:8pt;margin-bottom:10pt}.kop-title{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:0.3pt;line-height:1.45}.kop-title .title-main{font-size:13pt;display:block;margin-bottom:1pt}.kop-nomor{font-size:10.5pt;font-weight:bold;margin-top:2pt}.pihak-row{display:flex;margin-bottom:5pt;text-align:justify;align-items:flex-start}.pihak-num{width:14pt;flex-shrink:0;padding-right:2pt}.pihak-name{width:155pt;flex-shrink:0;padding-right:2pt}.pihak-colon{width:10pt;flex-shrink:0;padding-right:5pt}.pihak-desc{flex:1}.pasal-title{font-weight:bold;margin-top:12pt;margin-bottom:4pt;font-size:11.5pt;text-align:center}.ayat-row{display:flex;margin-bottom:2pt;text-align:justify;align-items:flex-start}.ayat-num{width:22pt;flex-shrink:0;text-align:left}.ayat-text{flex:1;text-align:justify}.lamp-table{border-collapse:collapse;width:100%;margin:6pt 0;font-size:10pt;table-layout:fixed}.lamp-table th,.lamp-table td{border:1px solid #000;padding:3pt 5pt;vertical-align:middle}.lamp-table th{background:#f5f5f5;font-weight:bold;text-align:center}.lamp-table .num{text-align:center;width:5%}.lamp-table .jenis{text-align:left;width:50%}.lamp-table .jml{text-align:center;width:13%}.lamp-table .nilai{text-align:right;width:16%}.lamp-table .total{text-align:right;width:16%}.lamp-table tfoot td{font-weight:bold;background:#fafafa}.ttd-table{width:100%;border-collapse:collapse;margin-top:32px}.ttd-table td{width:50%;text-align:center;vertical-align:top}.ttd-title{font-weight:bold;margin-bottom:4px}.ttd-space{height:70px}.ttd-name{margin:0;line-height:1.3;font-weight:bold}.penutup{margin-top:12pt;text-align:justify;text-indent:0}</style>'}
 
 function _contractBody(m){
-  const s=S.set;
-  const tglTT=m.tglTandaTangan||S.set.tglTandaTangan||'';
-  const tgl=new Date(tglTT);
-  const mitraBulan=tgl.getMonth(),mitraTahun=tgl.getFullYear();
-  const bulanNm=BL[mitraBulan],yy=mitraTahun,dd=tgl.getDate();
-  const hariT=HR[tgl.getDay()];
-  const tanggalStr=terbilang(dd)+' bulan '+bulanNm.toLowerCase()+' tahun '+terbilang(yy);
-  let tglSelesaiStr=m.tglSelesai||'';
-  if(!tglSelesaiStr&&tglTT)tglSelesaiStr=calcSelesaiFromTTD(tglTT);
-  if(!tglSelesaiStr)tglSelesaiStr=S.set.tglSelesai||getAutoDates().selesai;
-  const tglSelesai=fTgl(tglSelesaiStr);
-  const md=getMitraDates(m);
+  const s=S.set;const tglTT=m.tglTandaTangan||S.set.tglTandaTangan||'';const tgl=new Date(tglTT);const mitraBulan=tgl.getMonth(),mitraTahun=tgl.getFullYear();const bulanNm=BL[mitraBulan],yy=mitraTahun,dd=tgl.getDate();const hariT=HR[tgl.getDay()];const tanggalStr=terbilang(dd)+' bulan '+bulanNm.toLowerCase()+' tahun '+terbilang(yy);let tglSelesaiStr=m.tglSelesai||'';if(!tglSelesaiStr&&tglTT)tglSelesaiStr=calcSelesaiFromTTD(tglTT);if(!tglSelesaiStr)tglSelesaiStr=S.set.tglSelesai||getAutoDates().selesai;const tglSelesai=fTgl(tglSelesaiStr);const md=getMitraDates(m);
   function ar(n,t){return'<div class="ayat-row"><span class="ayat-num">('+n+').</span><span class="ayat-text">'+t+'</span></div>'}
   const lamp=m.lampiran||[];const hasLamp=lamp.some(l=>l.jenis&&l.jumlah>0);const totHonor=lamp.reduce((t,l)=>t+(l.jumlah||0)*(l.nilaiPerRD||0),0);const honorNilai=totHonor>0?totHonor:s.honorMaks;const honorStr=fRp(honorNilai),honorTerbilang=terbilang(honorNilai);
   let lampHTML='';if(hasLamp){lampHTML='<table class="lamp-table"><thead><tr><th class="num">No</th><th class="jenis" style="text-align:center">Jenis Pendataan</th><th class="jml">Jumlah Dokumen</th><th class="nilai" style="text-align:center">Nilai <br>(Rp)</th><th class="total" style="text-align:center">Total Nilai <br>(Rp)</th></tr></thead><tbody>';let ri=0;lamp.forEach(l=>{if(l.jenis){ri++;lampHTML+='<tr><td class="num">'+ri+'</td><td class="jenis">'+esc(l.jenis)+'</td><td class="jml">'+l.jumlah+'</td><td class="nilai">'+Number(l.nilaiPerRD).toLocaleString('id-ID')+'</td><td class="total">'+Number(l.jumlah*l.nilaiPerRD).toLocaleString('id-ID')+'</td></tr>'}});lampHTML+='</tbody><tfoot><tr><td colspan="4" style="text-align:center;padding-right:5pt">JUMLAH TOTAL</td><td class="total" style="padding-right:5pt">'+Number(totHonor).toLocaleString('id-ID')+'</td></tr></tfoot></table>'}
-  let html=''
-  +'<div class="paper">'
-  +'<div class="kop">'
-  +'<p class="kop-title"><span class="title-main">Perjanjian Kerja</span>Mitra Statistik Bulan '+bulanNm+' Tahun '+yy+'<br>'+esc(s.bpsNama)+'</p>'
-  +'<p class="kop-nomor">NOMOR: '+esc(m.nomorKontrak)+'</p></div>'
+  return'<div class="paper">'
+  +'<div class="kop"><p class="kop-title"><span class="title-main">Perjanjian Kerja</span>Mitra Statistik Bulan '+bulanNm+' Tahun '+yy+'<br>'+esc(s.bpsNama)+'</p><p class="kop-nomor">NOMOR: '+esc(m.nomorKontrak)+'</p></div>'
   +'<p style="text-indent:0;text-align:justify;margin-bottom:8pt">Pada hari ini, '+hariT.toLowerCase()+', tanggal '+tanggalStr+', bertempat di Kota '+esc(s.kota)+', yang bertanda tangan di bawah ini:</p>'
   +'<div class="pihak-row"><span class="pihak-num">1.</span><span class="pihak-name">'+esc(s.ppkNama)+'</span><span class="pihak-colon">:</span><span class="pihak-desc">Pejabat Pembuat Komitmen '+esc(s.bpsNama)+', alamat '+esc(s.bpsAlamat)+' bertindak untuk dan atas nama '+esc(s.bpsNama)+' selanjutnya disebut <b>PIHAK PERTAMA</b>.</span></div>'
   +'<div class="pihak-row"><span class="pihak-num">2.</span><span class="pihak-name">'+esc(m.nama)+'</span><span class="pihak-colon">:</span><span class="pihak-desc">beralamat di '+esc(m.alamat)+', bertindak untuk dan atas nama diri sendiri, selanjutnya disebut <b>PIHAK KEDUA</b>.</span></div>'
@@ -631,13 +545,11 @@ function _contractBody(m){
   +ar(2,'Honorarium sebagaimana dimaksud pada Ayat (1) dengan rincian sebagai berikut:')
   +(lampHTML||'<p style="font-style:italic;color:#888;margin-left:22pt">(Lampiran rincian belum diisi)</p>')
   +ar(3,'<b>PIHAK KEDUA</b> tidak diberikan honorarium tambahan apabila melakukan penyelesaian pekerjaan di luar jadwal pelaksanaan.')
-  +'<p class="pasal-title">Pasal 6</p>'
-  +'<p style="text-indent:0;text-align:justify;margin-bottom:2pt">Pembayaran honorarium sebagaimana dimaksud dalam Pasal 5 dilakukan setelah <b>PIHAK KEDUA</b> menyelesaikan dan menyerahkan seluruh hasil pekerjaan sebagaimana dimaksud dalam Pasal 5 ayat (2) kepada <b>PIHAK PERTAMA</b>.</p>'
+  +'<p class="pasal-title">Pasal 6</p><p style="text-indent:0;text-align:justify;margin-bottom:2pt">Pembayaran honorarium sebagaimana dimaksud dalam Pasal 5 dilakukan setelah <b>PIHAK KEDUA</b> menyelesaikan dan menyerahkan seluruh hasil pekerjaan sebagaimana dimaksud dalam Pasal 5 ayat (2) kepada <b>PIHAK PERTAMA</b>.</p>'
   +'<p class="pasal-title">Pasal 7</p>'
   +ar(1,'Penyerahan seluruh hasil pekerjaan lapangan sebagaimana dimaksud dalam Pasal 2 dilaksanakan oleh <b>PIHAK KEDUA</b> kepada <b>PIHAK PERTAMA</b> (dapat diwakilkan oleh ketua tim pelaksana kegiatan) yang dinyatakan dalam Berita Acara Serah Terima Hasil Pekerjaan dan ditandatangani oleh <b>PARA PIHAK</b>, paling lambat pada tanggal '+fTgl(md.serah)+'.')
   +ar(2,'Apabila terdapat hambatan dalam penyerahan hasil pekerjaan sebagaimana dimaksud pada ayat (1), <b>PIHAK PERTAMA</b> dapat memberikan tambahan waktu penyerahan seluruh hasil pekerjaan paling lambat pada tanggal '+fTgl(md.serExt)+'.')
-  +'<p class="pasal-title">Pasal 8</p>'
-  +'<p class="ayat" style="text-align:justify"><b>PIHAK PERTAMA</b> dapat memutuskan Perjanjian ini secara sepihak sewaktu-waktu dalam hal <b>PIHAK KEDUA</b> tidak dapat melaksanakan kewajibannya sebagaimana dimaksud dalam Pasal 4, dengan menerbitkan Surat Pemutusan Perjanjian Kerja.</p>'
+  +'<p class="pasal-title">Pasal 8</p><p style="text-align:justify"><b>PIHAK PERTAMA</b> dapat memutuskan Perjanjian ini secara sepihak sewaktu-waktu dalam hal <b>PIHAK KEDUA</b> tidak dapat melaksanakan kewajibannya sebagaimana dimaksud dalam Pasal 4, dengan menerbitkan Surat Pemutusan Perjanjian Kerja.</p>'
   +'<p class="pasal-title">Pasal 9</p>'
   +ar(1,'Apabila <b>PIHAK KEDUA</b> mengundurkan diri pada saat/setelah pelaksanaan pelatihan atau saat pencacahan dengan tidak menyelesaikan pekerjaan yang menjadi tanggung jawabnya, maka wajib membayar ganti rugi kepada <b>PIHAK PERTAMA</b> sebesar pengeluaran yang dikeluarkan oleh <b>PIHAK PERTAMA</b> kepada <b>PIHAK KEDUA</b>.')
   +ar(2,'Dikecualikan tidak membayar ganti rugi sebagaimana dimaksud pada ayat (1) kepada <b>PIHAK PERTAMA</b>, apabila <b>PIHAK KEDUA</b> meninggal dunia, mengundurkan diri karena sakit dengan keterangan rawat inap dengan keterangan pihak yang berwenang, kecelakaan dengan keterangan kepolisian, dan/atau telah diberikan Surat Pemutusan Perjanjian Kerja dari <b>PIHAK PERTAMA</b>.')
@@ -651,15 +563,13 @@ function _contractBody(m){
   +ar(2,'Apabila perselisihan tidak dapat diselesaikan sebagaimana dimaksud pada ayat (1), <b>PARA PIHAK</b> sepakat menyelesaikan perselisihan dengan memilih kedudukan/domisili hukum di Panitera Pengadilan Negeri '+esc(s.kota)+'.')
   +'<p class="penutup">Demikian Perjanjian ini dibuat dan ditandatangani oleh <b>PARA PIHAK</b> dalam 2 (dua) rangkap asli bermeterai cukup, tanpa paksaan dari <b>PIHAK</b> manapun dan untuk dilaksanakan oleh <b>PARA PIHAK</b>.</p>'
   +'<table class="ttd-table"><tr><td><p class="ttd-title">PIHAK KEDUA</p><div class="ttd-space"></div><p class="ttd-name">'+esc(m.nama)+'</p></td><td><p class="ttd-title">PIHAK PERTAMA</p><div class="ttd-space"></div><p class="ttd-name">'+esc(s.ppkNama)+'</p></td></tr></table>'
-  +'</div>';
-  return html;
-}
+  +'</div>'}
 
 /* ===== LOAD SAMPLE DATA ===== */
 function loadSample(){
   S.set={ppkNama:'Benny Dwi Kifana, ST, M.Si',ppkNip:'19881223 201403 1 002',bpsNama:'Badan Pusat Statistik Kota Pekanbaru',bpsAlamat:'Jl. Rawa Indah No. 2',kota:'Pekanbaru',honorMaks:1050000,bulan:0,tahun:2026,tglTandaTangan:'2026-01-02',tglSelesai:'2026-01-31'};
-  S.dbMitra=[
-    {id:gid(),nama:'Ade Novianti',nik:'1471065209890001',noHp:'085264683986',alamat:'Jl. Tirtonadi RT 002 RW.006',aktif:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
+   S.dbMitra=[
+  {id:gid(),nama:'Ade Novianti',nik:'1471065209890001',noHp:'085264683986',alamat:'Jl. Tirtonadi RT 002 RW.006',aktif:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
     {id:gid(),nama:'Adinda Ryvania Abrir',nik:'1471094506950002',noHp:'082285046706',alamat:'Jl. H. Ismail Yusuf No.165',aktif:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
     {id:gid(),nama:'Aju Listia Dewi',nik:'1471076012710001',noHp:'085265422765',alamat:'Jalan Lumba-Lumba No.55',aktif:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
     {id:gid(),nama:'Aked Achirunnas',nik:'1471101510930003',noHp:'087722390496',alamat:'Jl. Hangtuah Ujung No. 1 RT.004 RW.002',aktif:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
@@ -992,45 +902,25 @@ function loadSample(){
     {id:gid(),nama:'Zunasri',nik:'1471021903700001',noHp:'085271590951',alamat:'Jl. Jend. Sudirman, Gg. Damai No. 15',aktif:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()},
     {id:gid(),nama:'Zuryetti',nik:'1471094711780021',noHp:'081378129786',alamat:'Jln Angrek Prum Vaishatama Blok D9',aktif:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}
   ];
-  S.jenisKegiatan=[
-    {id:gid(),nama:'Survei Sosial Ekonomi Nasional',nilai:50000,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}
-  ];
-  const now=new Date().toISOString();
-  const sampleLamp=[{jenis:'Survei Sosial Ekonomi Nasional',jumlah:21,nilaiPerRD:50000}];
-  S.mitra=S.dbMitra.map((d,i)=>({
-    id:gid(),
-    nomorKontrak:'',
-    nama:d.nama,
-    nik:d.nik,
-    alamat:d.alamat,
-    noTelepon:d.noHp,
-    tglTandaTangan:'2026-01-02',
-    tglSelesai:'2026-01-31',
-    lampiran:JSON.parse(JSON.stringify(sampleLamp)),
-    totalHonor:1050000,
-    createdAt:new Date(now).getTime()+i,
-    updatedAt:now
-  }));
-  regenAllNomor();aSave();render();
-  toast('Data contoh dimuat — '+S.mitra.length+' kontrak Januari 2026.');
-}
+  S.dbMitra=sampleNames.map(n=>({id:gid(),nama:n[0],nik:n[1],noHp:n[2],alamat:n[3],aktif:true,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));
+  S.jenisKegiatan=[{id:gid(),nama:'Survei Sosial Ekonomi Nasional',nilai:50000,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}];
+  const now=new Date().toISOString();const sampleLamp=[{jenis:'Survei Sosial Ekonomi Nasional',jumlah:21,nilaiPerRD:50000}];
+  S.mitra=S.dbMitra.map((d,i)=>({id:gid(),nomorKontrak:'',nama:d.nama,nik:d.nik,alamat:d.alamat,noTelepon:d.noHp,tglTandaTangan:'2026-01-02',tglSelesai:'2026-01-31',lampiran:JSON.parse(JSON.stringify(sampleLamp)),totalHonor:1050000,createdAt:new Date(now).getTime()+i,updatedAt:now}));
+  regenAllNomor();aSave();render();toast('Data contoh dimuat — '+S.mitra.length+' kontrak Januari 2026.')}
 
 /* ===== RENDER ===== */
 function render(){
-  updBadges();
-  const mc=$('mc');
-  if(!mc)return;
+  updBadges();const mc=$('mc');if(!mc)return;
   switch(S.v){
     case 'dashboard':mc.innerHTML=rDash();break;
     case 'dbmitra':mc.innerHTML=rDbMitra();setTimeout(()=>updDbList(),0);break;
     case 'kegiatan':mc.innerHTML=rKegiatan();setTimeout(()=>updKegList(),0);break;
     case 'mitra':mc.innerHTML=rMitra();setTimeout(()=>updMitraList(),0);break;
-    case 'settings':mc.innerHTML=rSettings();break;
+    case 'settings':mc.innerHTML=rSettings();setTimeout(()=>initSettingsSS(),60);break;
     case 'exim':mc.innerHTML=rExIm();break;
-    default:mc.innerHTML=rDash();
+    default:mc.innerHTML=rDash()
   }
-  mc.scrollTop=0;
-  window.scrollTo({top:0,behavior:'auto'});
+  mc.scrollTop=0;window.scrollTo({top:0,behavior:'auto'})
 }
 
 /* ===== INIT ===== */
